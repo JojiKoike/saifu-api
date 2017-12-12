@@ -1,6 +1,6 @@
 from django.db import models
 from .base.transactionbase import TransactionBase
-from .master import MasterExpenseCategorySub, MasterIncomeCategorySub
+from .master import MasterExpenseCategorySub, MasterIncomeCategorySub, MasterAccount
 
 
 class TransactionExpense(TransactionBase):
@@ -12,6 +12,7 @@ class TransactionExpense(TransactionBase):
     paymentRecipientName = models.CharField(max_length=30, blank=True, default='')
     note = models.TextField()
     masterExpenseCategorySub = models.ForeignKey(MasterExpenseCategorySub, on_delete=models.CASCADE)
+    masterAccount = models.ForeignKey(MasterAccount, on_delete=models.CASCADE)
 
 
 class TransactionIncome(TransactionBase):
@@ -23,4 +24,5 @@ class TransactionIncome(TransactionBase):
     paymentSourceName = models.CharField(max_length=30, blank=True, default='')
     note = models.TextField()
     masterIncomeCategorySub = models.ForeignKey(MasterIncomeCategorySub, on_delete=models.CASCADE)
+    masterAccount = models.ForeignKey(MasterAccount, on_delete=models.CASCADE)
 

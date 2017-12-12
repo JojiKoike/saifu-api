@@ -43,3 +43,24 @@ class MasterIncomeCategorySub(MasterBase):
     def __str__(self):
         return self.name
 
+
+class MasterAccountCategory(MasterBase):
+    """
+    Account Category Master
+    """
+    name = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.name
+
+
+class MasterAccount(MasterBase):
+    """
+    Account Master
+    """
+    name = models.CharField(max_length=30)
+    initialBalance = models.BigIntegerField()
+    masterAccountCategory = models.ForeignKey(MasterAccountCategory, on_delete=models.CASCADE)
+
+
+
