@@ -1,7 +1,7 @@
 from django.db import models
 from core.models.base.transactionbase import TransactionBase
 from ..master.expense import MExpenseCategorySub
-from ..master.account import MAccount
+from ..master.saifu import MSaifu
 
 
 class TExpense(TransactionBase):
@@ -19,4 +19,4 @@ class TExpenseDetail(TransactionBase):
     """
     amount = models.BigIntegerField()
     mExpenseCategorySub = models.ForeignKey(MExpenseCategorySub, on_delete=models.CASCADE)
-    mAccount = models.ForeignKey(MAccount, on_delete=models.CASCADE)
+    mSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE)

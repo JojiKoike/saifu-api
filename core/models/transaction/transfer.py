@@ -1,6 +1,6 @@
 from django.db import models
 from ..base.transactionbase import TransactionBase
-from ..master.account import MAccount
+from ..master.saifu import MSaifu
 
 
 class TTransferBetweenAccounts(TransactionBase):
@@ -10,5 +10,5 @@ class TTransferBetweenAccounts(TransactionBase):
     transferDate = models.DateField()
     amount = models.BigIntegerField()
     note = models.TextField()
-    fromAccount = models.ForeignKey(MAccount, on_delete=models.CASCADE, related_name='FromAccount')
-    toAccount = models.ForeignKey(MAccount, on_delete=models.CASCADE, related_name='ToAccount')
+    fromSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE, related_name='FromSaifu')
+    toSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE, related_name='ToSaifu')
