@@ -2,7 +2,7 @@ from django.db import models
 from core.models.base.mastarbase import MasterBase
 
 
-class MAccountCategory(MasterBase):
+class MSaifuCategory(MasterBase):
     """
     Account Category Master
     """
@@ -12,10 +12,10 @@ class MAccountCategory(MasterBase):
         return self.name
 
 
-class MAccount(MasterBase):
+class MSaifu(MasterBase):
     """
     Account Master
     """
     name = models.CharField(max_length=30)
     initialBalance = models.BigIntegerField()
-    mAccountCategory = models.ForeignKey(MAccountCategory, on_delete=models.CASCADE)
+    mAccountCategory = models.ForeignKey(MSaifuCategory, on_delete=models.CASCADE)
