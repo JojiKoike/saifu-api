@@ -1,27 +1,21 @@
 language: python
-
 python:
-  - "3.6.2"
-
+- 3.6.2
 services:
-  - postgresql
-
+- postgresql
 install:
-  - pip install -r requirements.txt
-
+- pip install -r requirements.txt
 before_script:
-  - psql -c "CREATE USER saifudevuser PASSWORD 'password';" -U postgres
-  - psql -c "ALTER USER saifudevuser CREATEDB;" -U postgres
-  - psql -c "CREATE DATABASE saifudev OWNER saifudevuser;" -U postgres
-
+- psql -c "CREATE USER saifudevuser PASSWORD 'password';" -U postgres
+- psql -c "ALTER USER saifudevuser CREATEDB;" -U postgres
+- psql -c "CREATE DATABASE saifudev OWNER saifudevuser;" -U postgres
 script:
-  - python manage.py migrate
-  - python manage.py test core
-
+- python manage.py migrate
+- python manage.py test core
 deploy:
   provider: heroku
   api_key:
-    secure: H6S60rXCgUrJ0d03eBKxmBMQ2Mr4++oVKTQ4TjkvT7NKxMqzc15YWAoiV118FCBhMvUVEAzdsDZbtJwP32z4Y+pEvMu2wqk7S5cwx14kI8UaTEX+nKxH0tT7HMSNRxMogBDPIWkF4wF4vgDoo/GDfOOauecDNjwLrgk/ykYQqIpvwPWWkWKKmxIUOh4NztuGM0mGz0K51zGR1bOAeWN96PDt5u3u5vQxq+TJI2EyhLUt/v75zq7jo6O7eUZozI71xSvDwYT9pfiNLgTXPhS6feyH6aolFaikKwkzpkKsys9YOiEt3Df63YfDUndk84e6m+rVhAlTMhGJZKUL5J/JiAVnMlPo/lbuT/kM9Mzw2CQBO9pbNR38qBcsinnf9RjdeZ/N23CMvAdocMocgHdXL9aWtt/9KhTTL91LMjEVBLJuUO965RSFJLGQo3c+E7TiVmPulyMQJd8AkwOgKIUrNm7sNRpq+RaupBaMBXpGmH/DJZOqH9g6OLxdK80/1RAzoyul4jHhywu/FYeityC9/AGDimVv7MyxEqaBqcoRBTpn0YbXbPtVypkTQUc4KzO96WagM52w6XLNPMCmzqHpnt1EcEHvnVoHCQ5H19A3QMn25ZRBDXihysVyN37NaOuyC2PKE12AHzJKtm71SUV5wKlaCj8KLMQYDifUk+VFZ8I=
+    secure: fNQ/Ni1TRT0OZS8G4wV42ecI3wcG8CJ66uH2R9a5+nYFzK5nAVf3pkgz+PZJ/I1oSfaHc0PZlRaC7ldXzEc8crrSJA9BiAcSWbdW2qYVPTjMI37SVlvbV+NAQgWYdWp8zFtRnywHL07XrhaOh7u6kYLubZPoLGYGk/TRoVXL4URAsZnaa/L02bG33EcjdiUGtX82Sh3xeqyL+XBvdYcr6X8GM8GJ3pr/+1EPxg7NkD7XdK45+Q60LOBM1+FFtvWB1JV7YTMNm04gjUbobMV+CvmYEuRcO9sUL9cnXDn4B/5845JXWm3P3LtCoq0lyjyQMy823Ce7wKvVY463UtDp3ZN33/GxsjNAt39yK7JdqvP1ojpCuqQqiZguN2MwHwnOIqHEAeZveSahMqSEvVdyGEJ0lbCwllvuLDyZTgS2uROWMJT757VmaIPEIBk1BbccpWbVVJUj1n3EbX9xQnhtANSDm0mfRb1kYVYYr55akhiBSw6BnpYomSeW/JKWW5Mg4FJLbKOMVDMR9kaTkWDkphzERbO4LzAjTWXIx9xQ945KOyW4w6bFYBbbcKObRv2Loo6OgmGHsj9G+b9nB5ZHy/GugKh8lAsEeIs8h/USiAEUGuO0vNDEDTZEY1MkGhCSlMadmHZLlp7/2P28p4K1p8k20UcHwe7rMAtNk7nhdwk=
   skip_cleanup: true
   on: develop
   app:
