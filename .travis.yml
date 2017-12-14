@@ -1,17 +1,23 @@
 language: python
+
 python:
 - 3.6.3
+
 services:
 - postgresql
+
 install:
 - pip install -r requirements.txt
+
 before_script:
 - psql -c "CREATE USER saifudevuser PASSWORD 'password';" -U postgres
 - psql -c "ALTER USER saifudevuser CREATEDB;" -U postgres
 - psql -c "CREATE DATABASE saifudev OWNER saifudevuser;" -U postgres
+
 script:
 - python manage.py migrate
 - python manage.py test core
+
 deploy:
   provider: heroku
   api_key:
@@ -20,8 +26,9 @@ deploy:
   on: develop
   app:
     develop: saifu-api-stg
+
 notifications:
   email: false
   slack:
     rooms:
-      secure: KxK3XPjnO5w/gl4CGvswNHKNDQRFNV+o6f2dfX9RnLRV+lhnSOptPjdtPcd6/F/Kqms/McabNy59P/SarfvJ49oOU1DhZS4CmomDFPlZ878oPybEATLnJCaHFDI2BlphqN7T7WkjZZtiJvIp1pry/ujwuvYx7LBmdNAfN/r29pxgM5nfYUbDcjPOi/jvxrNV4kscQ8spjypNAOFp5ZOtXd/lQ33QoH2IAKmY2zJB6H3XyhxOqk1VPoMssaTg1/sX+RG4zsivDev79iRTrW19C8meEGCOg2e+VgMoQL/I5+lFCfEqNeU2am24/zhXVi8TgWrKrUqZAtSEKqhk+OytMdu9zl6J/Q2YlPNn2h/M8QJv0mya5mkmqvi/dKPJqCEOFCHME00pMPWhnvB/trTUP+aWXM/IYfWMRikov+msx/DzGv2fjIPrn8ktrKFFGi95TIfoH5/0sg0eQ9wHmekYuOoVI/w3XId5Lckh1ET/MDDtws4uZdUJ0QUNNgKL5vJSwMWdw5EqsWya000DsA84R6ax+N8GR/0TL120F2l71HVh5OiTVyTVcN4fflnsBrWEfAUriFsTJz6E7jUnu4KjxDuWcax9U4HISS+bSDOEcWGEoTP6iFtwzJO3GjdMzYDthzO9P/ChSfrAuUpPtyylrjLtcDvTKHxzq4inEakpwCA=
+      secure: "Wyo9iZxTrdfNMBMH8xbe5lxVhPCgkyPHQIOs83SskXxBk2L8VXEobwfrvPZmtmvaB9m7h+xNGwBg85KkbwrxlL8PIKTtLC41+rdSpYKhXXRrFcrWohoi1n7UKN2sOQ8yx6z+CAmrU3tCjaJuOcGbJoPWERsI+LBBEo14mFj91lKsdZeVYgnIyodbulMD28Xgwxd9F6b9SWPBPfF4QNtgk5ZNZE9NCEf9IGbveIingel4iABOIgT/dXJasgcCmgnqJH3tleQqvOxkePQ0kumYQO/+q8wVawBcCvjL29XbVtB0Oju6W3tiNshEzz4dmh/O4rJ4kSsslOhMjpTieciUVnLOZqHyQI0pYTbEgDll39/eM5guz/mKdbJvM+R/T3MWiz8ekAvpiDw5iQnZqzE294eKHmFS2SuGNttnFQWCQ2Bhm24Nv+XhUnbkvwxY+xhcAMTlRdEGyXuegsnL5hAk84RKc0PgmB05z3coNVEda5aOoFvSXrQdmv0B63nyjbmlMo3M3cpKLAx/2Ouc0uBTnC/7W/rQQcziRH9gp9nqiWJC9Lw/cfLfgA8D7QcXc9Ej/8LNZ9QSHXaL9Nd65iT3uPN1G4+wOvXHbDjVLb2tyBT47cdKiLN0y1ew4Xy7PKvj4Zdo/JoupyuGElo0RmOOhwQyMB/Y5WxJq68yY/G9604="
