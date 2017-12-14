@@ -8,6 +8,8 @@ services:
 
 install:
 - pip install -r requirements.txt
+- pip install coverage
+- pip install codecov
 
 before_script:
 - psql -c "CREATE USER saifudevuser PASSWORD 'password';" -U postgres
@@ -16,7 +18,10 @@ before_script:
 
 script:
 - python manage.py migrate
-- python manage.py test core
+- coverage run --source=core manage.py test core
+
+after_success:
+- codecov
 
 deploy:
   provider: heroku
