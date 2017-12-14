@@ -1,6 +1,8 @@
 from django.test import TestCase
 from core.models.master.income import *
 from core.models.master.expense import *
+from core.models.master.credit import *
+from core.models.master.saifu import *
 
 
 class MIncomeCategoryMainTests(TestCase):
@@ -55,4 +57,72 @@ class MExpenseCategorySubTests(TestCase):
         expensecategorymain = MExpenseCategoryMain.objects.get(name="日用品費")
         expensecategorysub = MExpenseCategorySub(mExpenseCategoryMain=expensecategorymain, name="洗剤")
         self.assertEqual(expensecategorysub.name, "洗剤")
+
+
+class MCreditCategoryMainTests(TestCase):
+    """
+    Credit Category Main Master Tests
+    """
+
+    def setUp(self):
+        MCreditCategoryMain.objects.create(name="税金")
+
+    def test_MCreditCategoryMainName_Saved_Correctly(self):
+        mCreditCategoryMain = MCreditCategoryMain.objects.get(name="税金")
+        self.assertEqual(mCreditCategoryMain.name, "税金")
+
+
+class MCreditCategorySubTests(TestCase):
+    """
+    Credit Category Sub Master Tests
+    """
+
+    def setUp(self):
+        MCreditCategoryMain.objects.create(name="社会保険料")
+
+    def test_MCreditCategorySubName_Saved_Correctly(self):
+        creditCategoryMain = MCreditCategoryMain.objects.get(name="社会保険料")
+        MCreditCategorySub.objects.create(name="厚生年金保険料", mCreditCategoryMain=creditCategoryMain)
+        mCreditCategorySub = MCreditCategorySub.objects.get(name="厚生年金保険料")
+        self.assertEqual(mCreditCategorySub.name, "厚生年金保険料")
+        self.assertEqual(mCreditCategorySub.mCreditCategoryMain.name, "社会保険料")
+
+
+class MSaifuCategoryTests(TestCase):
+    """
+    Saifu Category Master Tests
+    """
+
+    def setUp(self):
+        MSaifuCategory.objects.create(name="銀行口座")
+
+    def test_MSaifuName_Saved_Correctly(self):
+        mSaifuCategory = MSaifuCategory.objects.get(name="銀行口座")
+        self.assertEqual(mSaifuCategory.name, "銀行口座")
+
+        """
+        TODO 名称重複登録をはねる事をテスト
+        """
+
+
+class MSaifuTests(TestCase):
+    """
+    Saifu Master Tests
+    """
+
+    def setUp(self):
+        MSaifuCategory.objects.create(name="電子マネー")
+
+    def test_MSaifu_Saved_Correctly(self):
+        saifuCategory = MSaifuCategory.objects.get(name="電子マネー")
+        mSaifu = MSaifu.objects.create(name="Suica", initialBalance=10000, mSaifuCategory=saifuCategory)
+        self.assertEqual(mSaifu.name, "Suica")
+        self.assertEqual(mSaifu.initialBalance, 10000)
+        self.assertEqual(mSaifu.mSaifuCategory.name, "電子マネー")
+        
+    def test_MSaifu_MaxInitialBalance_Saved_Correctly(self):
+        saifuCategory = MSaifuCategory.objects.get(name="電子マネー")
+        mSaifu = MSaifu.objects.create(name="Pasmo", initialBalance=9223372036854775807, mSaifuCategory=saifuCategory)
+
+
 
