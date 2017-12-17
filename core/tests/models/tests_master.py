@@ -115,6 +115,6 @@ class MSaifuTests(TestCase):
 
     def test_MSaifu_Saved_Correctly(self):
         saifuCategory = MSaifuCategory.objects.get(name="電子マネー")
-        mSaifu = MSaifu.objects.create(name="Suica",  mSaifuCategory=saifuCategory)
+        mSaifu = MSaifu.objects.create(name="Suica", currentBalance=5000, mSaifuCategory=saifuCategory)
         self.assertEqual(mSaifu.name, "Suica")
         self.assertEqual(mSaifu.mSaifuCategory.name, "電子マネー")

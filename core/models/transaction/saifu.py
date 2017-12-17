@@ -10,4 +10,4 @@ class TSaifuHistory(UnModifiableTransactionBase):
     """
     recordDate = models.DateField()
     balance = models.BigIntegerField()
-    msaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE)
+    mSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE)

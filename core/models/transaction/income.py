@@ -20,4 +20,4 @@ class TIncomeDetail(UnModifiableTransactionBase):
     tIncome = models.ForeignKey(TIncome, on_delete=models.CASCADE)
     amount = models.BigIntegerField()
     mIncomeCategorySub = models.ForeignKey(MIncomeCategorySub, on_delete=models.CASCADE)
-    tSaifu = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE)
+    tSaifuHistory = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE)
