@@ -1,7 +1,7 @@
 from django.db import models
-from core.models.base.transactionbase import TransactionBase
+from core.models.base.transactionbase import TransactionBase, UnModifiableTransactionBase
 from ..master.income import MIncomeCategorySub
-from ..master.saifu import MSaifu
+from .saifu import TSaifuHistory
 
 
 class TIncome(TransactionBase):
@@ -13,10 +13,11 @@ class TIncome(TransactionBase):
     note = models.TextField()
 
 
-class TIncomeDetail(TransactionBase):
+class TIncomeDetail(UnModifiableTransactionBase):
     """
     Income Detail Transaction
     """
+    tIncome = models.ForeignKey(TIncome, on_delete=models.CASCADE)
     amount = models.BigIntegerField()
     mIncomeCategorySub = models.ForeignKey(MIncomeCategorySub, on_delete=models.CASCADE)
-    mSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE)
+    tSaifuHistory = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE)
