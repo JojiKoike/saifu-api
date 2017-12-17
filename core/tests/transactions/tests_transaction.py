@@ -1,5 +1,6 @@
 from django.test import TestCase
 from core.models.master.income import *
+from core.models.master.expense import *
 from core.models.master.saifu import *
 from core.models.transaction.income import *
 from core.models.transaction.expense import *
@@ -56,7 +57,7 @@ class TIncomeDetailTests(TestCase):
         msaifu.currentBalance = oldCurrentBalance + incomeAmount
         msaifu.save()
         self.assertEqual(msaifu.currentBalance, oldCurrentBalance + incomeAmount)
-        print(msaifu.currentBalance)
+
 
 class TExpenseTests(TestCase):
     """
@@ -65,6 +66,42 @@ class TExpenseTests(TestCase):
 
     def test_Expense_Saved_Correctly(self):
         expense = TExpense.objects.create(paymentRecipientName="ファミマ",
-                                          expenseDate="2017-12-16", note="Test")
+                                          expenseDate="2017-12-17", note="Test")
         self.assertEqual(expense.paymentRecipientName, "ファミマ")
+        self.assertEqual(expense.expenseDate, "2017-12-17")
+        self.assertEqual(expense.note, "Test")
 
+
+class TExpenseDetailTests(TestCase):
+    """
+    Expense (Detail) Transaction Tests
+    """
+
+    def test_ExpenseDetail_Saved_Correctly(self):
+        expenseAmount = 10000000
+        """収入記録親オブジェクト生成"""
+        texpense = TExpense.objects.create(paymentRecipientName="ファミマ", expenseDate="2017-12-17", note="テスト")
+        """収入カテゴリオブジェクト生成"""
+        mexpensecategorymain = MExpenseCategoryMain.objects.create(name="食費")
+        mexpensecategorysub = MExpenseCategorySub.objects.create(name="外食", mExpenseCategoryMain=mexpensecategorymain)
+        """MSaufuオブジェクト生成"""
+        msaifucategory = MSaifuCategory.objects.create(name="クレジットカード")
+        msaifu = MSaifu.objects.create(name="VISA", currentBalance=10000000, mSaifuCategory=msaifucategory)
+        """TSaifuHistoryオブジェクト生成"""
+        tsaifuhistory = TSaifuHistory.objects.create(
+            recordDate="2017-12-17", balance=msaifu.currentBalance - expenseAmount, mSaifu=msaifu)
+        """収入明細レコード保存処理"""
+        texpensedetail = TExpenseDetail.objects.create(
+            tExpense=texpense, amount=expenseAmount, mExpenseCategorySub=mexpensecategorysub, tSaifuHistory=tsaifuhistory)
+        self.assertEqual(texpensedetail.tExpense.paymentRecipientName, "ファミマ")
+        self.assertEqual(texpensedetail.tExpense.expenseDate, "2017-12-17")
+        self.assertEqual(texpensedetail.tExpense.note, "テスト")
+        self.assertEqual(texpensedetail.amount, expenseAmount)
+        self.assertEqual(texpensedetail.mExpenseCategorySub.mExpenseCategoryMain.name, "食費")
+        self.assertEqual(texpensedetail.mExpenseCategorySub.name, "外食")
+        self.assertEqual(texpensedetail.tSaifuHistory.balance, msaifu.currentBalance - expenseAmount)
+        """MSaifu残高更新処理"""
+        oldCurrentBalance = msaifu.currentBalance
+        msaifu.currentBalance = oldCurrentBalance - expenseAmount
+        msaifu.save()
+        self.assertEqual(msaifu.currentBalance, oldCurrentBalance - expenseAmount)

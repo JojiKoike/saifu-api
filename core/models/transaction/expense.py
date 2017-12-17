@@ -20,4 +20,4 @@ class TExpenseDetail(UnModifiableTransactionBase):
     tExpense = models.ForeignKey(TExpense, on_delete=models.CASCADE)
     amount = models.BigIntegerField()
     mExpenseCategorySub = models.ForeignKey(MExpenseCategorySub, on_delete=models.CASCADE)
-    tSaifu = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE)
+    tSaifuHistory = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE)
