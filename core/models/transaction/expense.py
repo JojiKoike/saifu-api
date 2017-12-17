@@ -1,7 +1,7 @@
 from django.db import models
-from core.models.base.transactionbase import TransactionBase
+from core.models.base.transactionbase import TransactionBase, UnModifiableTransactionBase
 from ..master.expense import MExpenseCategorySub
-from ..master.saifu import MSaifu
+from .saifu import TSaifuHistory
 
 
 class TExpense(TransactionBase):
@@ -13,10 +13,11 @@ class TExpense(TransactionBase):
     note = models.TextField()
 
 
-class TExpenseDetail(TransactionBase):
+class TExpenseDetail(UnModifiableTransactionBase):
     """
     Expense Detail Transaction
     """
+    tExpense = models.ForeignKey(TExpense, on_delete=models.CASCADE)
     amount = models.BigIntegerField()
     mExpenseCategorySub = models.ForeignKey(MExpenseCategorySub, on_delete=models.CASCADE)
-    mSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE)
+    tSaifu = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE)

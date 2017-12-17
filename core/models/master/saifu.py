@@ -17,5 +17,4 @@ class MSaifu(MasterBase):
     Account Master
     """
     name = models.CharField(max_length=30)
-    initialBalance = models.BigIntegerField()
     mSaifuCategory = models.ForeignKey(MSaifuCategory, on_delete=models.CASCADE)

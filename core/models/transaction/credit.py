@@ -11,4 +11,3 @@ class TCredit(TransactionBase):
     amount = models.BigIntegerField()
     mCreditCategorySub = models.ForeignKey(MCreditCategorySub, on_delete=models.CASCADE)
     tIncome = models.ForeignKey(TIncome, on_delete=models.CASCADE)
-
