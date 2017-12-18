@@ -2,10 +2,12 @@ from django.test import TestCase
 from core.models.master.income import *
 from core.models.master.expense import *
 from core.models.master.saifu import *
+from core.models.master.credit import *
 from core.models.transaction.income import *
 from core.models.transaction.expense import *
 from core.models.transaction.saifu import *
 from core.models.transaction.transfer import *
+from core.models.transaction.credit import *
 from django.core.exceptions import ValidationError
 
 
@@ -165,4 +167,29 @@ class TTransferBetweenSaifuTests(TestCase):
         self.assertEqual(ttransferbetweensaifu.toSaifuHistory.balance, 8000)
         self.assertEqual(self.fromSaifu.currentBalance, -105000)
         self.assertEqual(self.toSaifu.currentBalance, 8000)
+
+
+class TCreditTests(TestCase):
+    """
+    Credit Transfer Tests
+    """
+    mcreditcategorymain = None
+    mcreditcategorysub = None
+    tincome = None
+
+    def setUp(self):
+        self.mcreditcategorymain = MCreditCategoryMain.objects.create(name="税金")
+        self.mcreditcategorysub = MCreditCategorySub.objects.create(
+            mCreditCategoryMain=self.mcreditcategorymain, name="所得税")
+        self.tincome = TIncome.objects.create(paymentSourceName="フリーメーソン", incomeDate="2017-12-18", note="Test")
+
+    def test_TCredit_Saved_Correctly(self):
+        tcredit = TCredit.objects.create(
+            amount=10000, mCreditCategorySub=self.mcreditcategorysub, tIncome=self.tincome)
+        self.assertEqual(tcredit.amount, 10000)
+        self.assertEqual(tcredit.mCreditCategorySub.name, "所得税")
+        self.assertEqual(tcredit.mCreditCategorySub.mCreditCategoryMain.name, "税金")
+        self.assertEqual(tcredit.tIncome.paymentSourceName, "フリーメーソン")
+        self.assertEqual(tcredit.tIncome.incomeDate, "2017-12-18")
+
 
