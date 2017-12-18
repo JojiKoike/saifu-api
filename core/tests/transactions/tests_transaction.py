@@ -5,6 +5,7 @@ from core.models.master.saifu import *
 from core.models.transaction.income import *
 from core.models.transaction.expense import *
 from core.models.transaction.saifu import *
+from core.models.transaction.transfer import *
 from django.core.exceptions import ValidationError
 
 
@@ -125,3 +126,43 @@ class TExpenseDetailTests(TestCase):
         msaifu.currentBalance = oldCurrentBalance - expenseAmount
         msaifu.save()
         self.assertEqual(msaifu.currentBalance, oldCurrentBalance - expenseAmount)
+
+
+class TTransferBetweenSaifuTests(TestCase):
+    """
+    Transfer Between Saifu Transaction Tests
+    """
+    fromSaifuCategory = None
+    toSaifuCategory = None
+    fromSaifu = None
+    toSaifu = None
+    
+    def setUp(self):
+        self.fromSaifuCategory = MSaifuCategory.objects.create(name="クレジットカード")
+        self.fromSaifu = MSaifu.objects.create(name="JCB", currentBalance=-100000, mSaifuCategory=self.fromSaifuCategory)
+        self.toSaifuCategory = MSaifuCategory.objects.create(name="電子マネー")
+        self.toSaifu = MSaifu.objects.create(name="Suica", currentBalance=3000, mSaifuCategory=self.toSaifuCategory)
+        
+    def test_TransferBetweenSaifu_Saved_Correctly(self):
+        transferamount = 5000
+        fromsaifuhisotory = TSaifuHistory.objects.create(recordDate="2017-12-18", 
+                                                         balance=self.fromSaifu.currentBalance - transferamount,
+                                                         mSaifu=self.fromSaifu)
+        tosaifuhistory = TSaifuHistory.objects.create(recordDate="2017-12-18",
+                                                      balance=self.toSaifu.currentBalance + transferamount,
+                                                      mSaifu=self.toSaifu)
+        ttransferbetweensaifu = TTransferBetweenSaifu.objects.create(transferDate="2017-12-18", 
+                                                                     amount=transferamount, 
+                                                                     note="Suicaチャージシナリオ",
+                                                                     fromSaifuHistory=fromsaifuhisotory,
+                                                                     toSaifuHistory=tosaifuhistory)
+        self.fromSaifu.currentBalance -= transferamount
+        self.fromSaifu.save()
+        self.toSaifu.currentBalance += transferamount
+        self.toSaifu.save()
+        self.assertEqual(ttransferbetweensaifu.amount, 5000)
+        self.assertEqual(ttransferbetweensaifu.fromSaifuHistory.balance, -105000)
+        self.assertEqual(ttransferbetweensaifu.toSaifuHistory.balance, 8000)
+        self.assertEqual(self.fromSaifu.currentBalance, -105000)
+        self.assertEqual(self.toSaifu.currentBalance, 8000)
+
