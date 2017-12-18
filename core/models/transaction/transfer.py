@@ -10,5 +10,5 @@ class TTransferBetweenSaifu(UnModifiableTransactionBase):
     transferDate = models.DateField()
     amount = models.BigIntegerField()
     note = models.TextField()
-    fromSaifu = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE, related_name='FromSaifu')
-    toSaifu = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE, related_name='ToSaifu')
+    fromSaifuHistory = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE, related_name='FromSaifu')
+    toSaifuHistory = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE, related_name='ToSaifu')
