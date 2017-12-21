@@ -17,7 +17,8 @@ class TIncomeDetail(UnModifiableTransactionBase):
     """
     Income Detail Transaction
     """
-    tIncome = models.ForeignKey(TIncome, on_delete=models.CASCADE)
+    tIncome = models.ForeignKey(TIncome, on_delete=models.CASCADE, related_name="t_income_details")
     amount = models.BigIntegerField()
-    mIncomeCategorySub = models.ForeignKey(MIncomeCategorySub, on_delete=models.CASCADE)
-    tSaifuHistory = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE)
+    mIncomeCategorySub = models.ForeignKey(MIncomeCategorySub,
+                                           on_delete=models.CASCADE, related_name="t_income_details")
+    tSaifuHistory = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE, related_name="t_income_details")
