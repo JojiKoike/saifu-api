@@ -5,30 +5,9 @@ from core.models.master.saifu import *
 from core.models.master.credit import *
 from core.models.transaction.income import *
 from core.models.transaction.expense import *
-from core.models.transaction.saifu import *
 from core.models.transaction.transfer import *
 from core.models.transaction.credit import *
 from django.core.exceptions import ValidationError
-
-
-class TSaifuHistoryTests(TestCase):
-    """
-    Saifu History Transaction Tests
-    """
-
-    def setUp(self):
-        msaifucategory = MSaifuCategory.objects.create(name="銀行")
-        MSaifu.objects.create(name="スイス銀行",  currentBalance=10000000000, mSaifuCategory=msaifucategory)
-
-    def test_SaifuHistory_Saved_Correctly(self):
-        msaifu = MSaifu.objects.get(name="スイス銀行")
-        tsaifuhistory = TSaifuHistory.objects.create(recordDate="2017-12-17", balance=10000000000, mSaifu=msaifu)
-        self.assertEqual(tsaifuhistory.recordDate, "2017-12-17")
-        self.assertEqual(tsaifuhistory.balance, 10000000000)
-        self.assertEqual(tsaifuhistory.mSaifu.name, "スイス銀行")
-        self.assertEqual(tsaifuhistory.mSaifu.currentBalance, 10000000000)
-        self.assertEqual(tsaifuhistory.mSaifu.mSaifuCategory.name, "銀行")
-
 
 
 class TIncomeTests(TestCase):
@@ -62,19 +41,15 @@ class TIncomeDetailTests(TestCase):
         """MSaufuオブジェクト生成"""
         msaifucategory = MSaifuCategory.objects.create(name="銀行")
         msaifu = MSaifu.objects.create(name="スイス銀行", currentBalance=10000000, mSaifuCategory=msaifucategory)
-        """TSaifuHistoryオブジェクト生成"""
-        tsaifuhistory = TSaifuHistory.objects.create(
-            recordDate="2017-12-17", balance=msaifu.currentBalance+incomeAmount, mSaifu=msaifu)
         """収入明細レコード保存処理"""
         tincomedetail = TIncomeDetail.objects.create(
-            tIncome=tincome, amount=incomeAmount, mIncomeCategorySub=mincomecategorysub, tSaifuHistory=tsaifuhistory)
+            tIncome=tincome, amount=incomeAmount, mIncomeCategorySub=mincomecategorysub, mSaifu=msaifu)
         self.assertEqual(tincomedetail.tIncome.paymentSourceName, "フリーメーソン")
         self.assertEqual(tincomedetail.tIncome.incomeDate, "2017-12-17")
         self.assertEqual(tincomedetail.tIncome.note, "テスト")
         self.assertEqual(tincomedetail.amount, incomeAmount)
         self.assertEqual(tincomedetail.mIncomeCategorySub.mIncomeCategoryMain.name, "給与")
         self.assertEqual(tincomedetail.mIncomeCategorySub.name, "通常給与")
-        self.assertEqual(tincomedetail.tSaifuHistory.balance, msaifu.currentBalance+incomeAmount)
         """MSaifu残高更新処理"""
         oldCurrentBalance = msaifu.currentBalance
         msaifu.currentBalance = oldCurrentBalance + incomeAmount
@@ -110,19 +85,15 @@ class TExpenseDetailTests(TestCase):
         """MSaufuオブジェクト生成"""
         msaifucategory = MSaifuCategory.objects.create(name="クレジットカード")
         msaifu = MSaifu.objects.create(name="VISA", currentBalance=10000000, mSaifuCategory=msaifucategory)
-        """TSaifuHistoryオブジェクト生成"""
-        tsaifuhistory = TSaifuHistory.objects.create(
-            recordDate="2017-12-17", balance=msaifu.currentBalance - expenseAmount, mSaifu=msaifu)
         """収入明細レコード保存処理"""
         texpensedetail = TExpenseDetail.objects.create(
-            tExpense=texpense, amount=expenseAmount, mExpenseCategorySub=mexpensecategorysub, tSaifuHistory=tsaifuhistory)
+            tExpense=texpense, amount=expenseAmount, mExpenseCategorySub=mexpensecategorysub, mSaifu=msaifu)
         self.assertEqual(texpensedetail.tExpense.paymentRecipientName, "ファミマ")
         self.assertEqual(texpensedetail.tExpense.expenseDate, "2017-12-17")
         self.assertEqual(texpensedetail.tExpense.note, "テスト")
         self.assertEqual(texpensedetail.amount, expenseAmount)
         self.assertEqual(texpensedetail.mExpenseCategorySub.mExpenseCategoryMain.name, "食費")
         self.assertEqual(texpensedetail.mExpenseCategorySub.name, "外食")
-        self.assertEqual(texpensedetail.tSaifuHistory.balance, msaifu.currentBalance - expenseAmount)
         """MSaifu残高更新処理"""
         oldCurrentBalance = msaifu.currentBalance
         msaifu.currentBalance = oldCurrentBalance - expenseAmount
@@ -147,24 +118,16 @@ class TTransferBetweenSaifuTests(TestCase):
         
     def test_TransferBetweenSaifu_Saved_Correctly(self):
         transferamount = 5000
-        fromsaifuhisotory = TSaifuHistory.objects.create(recordDate="2017-12-18", 
-                                                         balance=self.fromSaifu.currentBalance - transferamount,
-                                                         mSaifu=self.fromSaifu)
-        tosaifuhistory = TSaifuHistory.objects.create(recordDate="2017-12-18",
-                                                      balance=self.toSaifu.currentBalance + transferamount,
-                                                      mSaifu=self.toSaifu)
-        ttransferbetweensaifu = TTransferBetweenSaifu.objects.create(transferDate="2017-12-18", 
+        ttransferbetweensaifu = TTransferBetweenSaifu.objects.create(transferDate="2017-12-18",
                                                                      amount=transferamount, 
                                                                      note="Suicaチャージシナリオ",
-                                                                     fromSaifuHistory=fromsaifuhisotory,
-                                                                     toSaifuHistory=tosaifuhistory)
+                                                                     fromSaifu=self.fromSaifu,
+                                                                     toSaifu=self.toSaifu)
         self.fromSaifu.currentBalance -= transferamount
         self.fromSaifu.save()
         self.toSaifu.currentBalance += transferamount
         self.toSaifu.save()
         self.assertEqual(ttransferbetweensaifu.amount, 5000)
-        self.assertEqual(ttransferbetweensaifu.fromSaifuHistory.balance, -105000)
-        self.assertEqual(ttransferbetweensaifu.toSaifuHistory.balance, 8000)
         self.assertEqual(self.fromSaifu.currentBalance, -105000)
         self.assertEqual(self.toSaifu.currentBalance, 8000)
 
@@ -191,5 +154,3 @@ class TCreditTests(TestCase):
         self.assertEqual(tcredit.mCreditCategorySub.mCreditCategoryMain.name, "税金")
         self.assertEqual(tcredit.tIncome.paymentSourceName, "フリーメーソン")
         self.assertEqual(tcredit.tIncome.incomeDate, "2017-12-18")
-
-

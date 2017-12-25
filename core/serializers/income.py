@@ -2,7 +2,7 @@ from rest_framework import serializers
 from ..models.master.income import MIncomeCategoryMain, MIncomeCategorySub
 from ..models.master.saifu import MSaifu
 from ..models.transaction.income import TIncome, TIncomeDetail
-from ..models.transaction.saifu import TSaifuHistory
+from ..models.transaction.credit import TCredit
 
 
 class IncomeCategoryMainSerializer(serializers.ModelSerializer):
@@ -36,100 +36,77 @@ class IncomeCategorySerializer(serializers.ModelSerializer):
 
 class IncomeDetailSerializer(serializers.ModelSerializer):
     """
-    Income Detail Transaction Serializer
+    Income Detail Serializer
     """
+    mSaifu = serializers.UUIDField(required=True, write_only=True)
+
     class Meta:
         model = TIncomeDetail
-        fields = ('id', 'amount', 'tIncome', 'mIncomeCategorySub', 'tSaifuHistory')
+        fields = ('id', 'amount', 'mIncomeCategorySub', 'mSaifu')
 
 
-class Income(object):
+class CreditSerializer(serializers.ModelSerializer):
     """
-    Income Object
+    Credit Serializer
     """
-    def __init__(self, paymentSourceName, incomeDate, note, incomeDetails):
-        self.paymentSourceName = paymentSourceName
-        self.incomeDate = incomeDate
-        self.note = note
-        self.incomeDetails = incomeDetails
+    class Meta:
+        model = TCredit
+        fields = ('id', 'amount', 'mCreditCategorySub')
 
 
-class IncomeDetailInput(object):
+class IncomeSerializer(serializers.ModelSerializer):
     """
-    Income Detail Input Object
+    Income Serializer
     """
-    def __init__(self, amount, id_income_category_sub, id_saifu):
-        self.amount = amount
-        self.id_income_category_sub = id_income_category_sub
-        self.id_saifu = id_saifu
+    income_details = IncomeDetailSerializer(many=True)
+    credits = CreditSerializer(many=True)
 
-
-class IncomeDetailInputsSerializer(serializers.Serializer):
-    """
-    Income Detail Input Serializer
-    """
-    amount = serializers.IntegerField()
-    id_income_category_sub = serializers.UUIDField()
-    id_saifu = serializers.UUIDField()
-
-    def update(self, instance, validated_data):
-        instance.amount = validated_data.get('amount', instance.amount)
-        instance.id_income_category_sub = \
-            validated_data.get('id_income_category_sub', instance.id_income_category_sub)
-        instance.id_saifu = validated_data.get('id_saifu', instance.id_saifu)
-        return instance
-
-    def create(self, validated_data):
-        return IncomeDetailInput(**validated_data)
-
-
-class IncomeEditSerializer(serializers.Serializer):
-
-    paymentSourceName = serializers.CharField(max_length=30)
-    incomeDate = serializers.DateField()
-    note = serializers.CharField()
-    incomeDetails = IncomeDetailInputsSerializer(many=True)
-
-    """
-    Income update & create Serializer
-    """
-    def update(self, instance, validated_data):
-        pass
+    class Meta:
+        model = TIncome
+        fields = ('id', 'paymentSourceName', 'incomeDate', 'note', 'income_details', 'credits')
 
     def create(self, validated_data):
         """
-        収入記録処理の流れ
-        １．親帳票オブジェクト保存
-        ２．各明細に、収入金額、収入サブカテゴリのUUID, 収入先SaifuのUUID
-        :param validated_data:
-        :return: Response
+        Create Income Record
+        :param validated_data: Income, IncomeDetails, Credits
+        :return: Income
         """
-        income_details_data = validated_data.pop('incomeDetails')
-        print(income_details_data)
+
+        """
+        Step.1 : Get Income Details and Credits data from Input JSON.
+        (Attention : These procedure must be done before Income record create
+                      because these attributes aren't included in TIncome.)
+        """
+        income_details_data = validated_data.pop('income_details')
+        credits_data = validated_data.pop('credits')
+
+        """
+        Step.2 : Create Income Parent Object
+        """
         income = TIncome.objects.create(**validated_data)
         for income_detail_data in income_details_data:
             """
-            Step1 : Update Saifu CurrentBalance
+            Step.2-1 : Get each Income Detail amount
             """
-            saifu = MSaifu.objects.get(pk=income_detail_data.pop('id_saifu'))
-            amount = income_detail_data.pop('amount')
-            saifu.currentBalance += amount
-            saifu.save()
+            income_amount = income_detail_data.pop('amount')
             """
-            Step2 : Create Saifu History Record
+            Step.2-2 : Update Saifu current balance
             """
-            saifu_history = TSaifuHistory.objects.create(
-                recordDate=validated_data.pop('incomeDate'),
-                balance=saifu.currentBalance,
-                mSaifu=saifu)
+            m_saifu = MSaifu.objects.get(pk=income_detail_data.pop('mSaifu'))
+            m_saifu.currentBalance += income_amount
+            m_saifu.save()
             """
-            Step3 : Create Income Detail Record
+            Step.2-3 : Create Income Detail records
             """
-            TIncomeDetail.objects.create(tIncome=income,
-                                         amount=amount,
-                                         mIncomeCategorySub=
-                                         MIncomeCategorySub.objects
-                                         .get(pk=income_detail_data.pop('id_income_category_sub')),
-                                         tSaifuHistory=saifu_history)
+            TIncomeDetail.objects.create(tIncome=income, mSaifu=m_saifu,
+                                         amount=income_amount, **income_detail_data)
+
+        """
+        Step.3 : Create Credit records
+        """
+        for credit_data in credits_data:
+            TCredit.objects.create(tIncome=income, **credit_data)
 
         return income
+
+

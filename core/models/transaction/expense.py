@@ -1,7 +1,7 @@
 from django.db import models
 from core.models.base.transactionbase import TransactionBase, UnModifiableTransactionBase
 from ..master.expense import MExpenseCategorySub
-from .saifu import TSaifuHistory
+from ..master.saifu import MSaifu
 
 
 class TExpense(TransactionBase):
@@ -20,4 +20,4 @@ class TExpenseDetail(UnModifiableTransactionBase):
     tExpense = models.ForeignKey(TExpense, on_delete=models.CASCADE)
     amount = models.BigIntegerField()
     mExpenseCategorySub = models.ForeignKey(MExpenseCategorySub, on_delete=models.CASCADE)
-    tSaifuHistory = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE)
+    mSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE)

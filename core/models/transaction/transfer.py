@@ -1,6 +1,6 @@
 from django.db import models
 from ..base.transactionbase import UnModifiableTransactionBase
-from .saifu import TSaifuHistory
+from ..master.saifu import MSaifu
 
 
 class TTransferBetweenSaifu(UnModifiableTransactionBase):
@@ -10,5 +10,5 @@ class TTransferBetweenSaifu(UnModifiableTransactionBase):
     transferDate = models.DateField()
     amount = models.BigIntegerField()
     note = models.TextField()
-    fromSaifuHistory = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE, related_name='FromSaifu')
-    toSaifuHistory = models.OneToOneField(TSaifuHistory, on_delete=models.CASCADE, related_name='ToSaifu')
+    fromSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE, related_name="from_saifu")
+    toSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE, related_name="to_saifu")
