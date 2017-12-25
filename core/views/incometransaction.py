@@ -1,14 +1,9 @@
-from core.serializers.income import IncomeEditSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from core.serializers.income import IncomeSerializer
+from core.models.transaction.income import TIncome
+
+from rest_framework import generics
 
 
-class IncomeEdit(APIView):
-
-    def post(self, request, format=None):
-        serializer = IncomeEditSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class Income(generics.ListCreateAPIView):
+    queryset = TIncome.objects.all()
+    serializer_class = IncomeSerializer

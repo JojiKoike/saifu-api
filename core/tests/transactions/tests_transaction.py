@@ -5,30 +5,9 @@ from core.models.master.saifu import *
 from core.models.master.credit import *
 from core.models.transaction.income import *
 from core.models.transaction.expense import *
-from core.models.transaction.saifu import *
 from core.models.transaction.transfer import *
 from core.models.transaction.credit import *
 from django.core.exceptions import ValidationError
-
-
-class TSaifuHistoryTests(TestCase):
-    """
-    Saifu History Transaction Tests
-    """
-
-    def setUp(self):
-        msaifucategory = MSaifuCategory.objects.create(name="銀行")
-        MSaifu.objects.create(name="スイス銀行",  currentBalance=10000000000, mSaifuCategory=msaifucategory)
-
-    def test_SaifuHistory_Saved_Correctly(self):
-        msaifu = MSaifu.objects.get(name="スイス銀行")
-        tsaifuhistory = TSaifuHistory.objects.create(recordDate="2017-12-17", balance=10000000000, mSaifu=msaifu)
-        self.assertEqual(tsaifuhistory.recordDate, "2017-12-17")
-        self.assertEqual(tsaifuhistory.balance, 10000000000)
-        self.assertEqual(tsaifuhistory.mSaifu.name, "スイス銀行")
-        self.assertEqual(tsaifuhistory.mSaifu.currentBalance, 10000000000)
-        self.assertEqual(tsaifuhistory.mSaifu.mSaifuCategory.name, "銀行")
-
 
 
 class TIncomeTests(TestCase):

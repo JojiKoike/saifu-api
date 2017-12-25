@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from ..models.master.saifu import MSaifuCategory, MSaifu
-from ..models.transaction.saifu import TSaifuHistory
 
 
 class SaifuCategorySerializer(serializers.ModelSerializer):
