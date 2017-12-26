@@ -8,6 +8,7 @@ from core.views.credit import CreditCategoryList, \
     CreditCategoryMainList, CreditCategoryMainDetail, CreditCategorySubList, CreditCategorySubDetail
 from core.views.expense import ExpenseCategoryList, ExpenseCategoryMainList, ExpenseCategoryMainDetail, \
     ExpenseCategorySubList, ExpenseCategorySubDetail, ExpenseList
+from core.views.transfer import TransferBetweenSaifuList
 
 schema_view = get_swagger_view(title='Saifu Core API')
 
@@ -33,7 +34,8 @@ urlpatterns = [
     path('expense_category/main/', ExpenseCategoryMainList.as_view()),
     path('expense_category/main/<uuid:pk>/', ExpenseCategoryMainDetail.as_view()),
     path('expense_category/sub/', ExpenseCategorySubList.as_view()),
-    path('expense_category/sub/<uuid:pk>/', ExpenseCategorySubDetail.as_view())
+    path('expense_category/sub/<uuid:pk>/', ExpenseCategorySubDetail.as_view()),
+    path('transfer_between_saifu/', TransferBetweenSaifuList.as_view())
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
