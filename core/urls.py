@@ -14,7 +14,7 @@ schema_view = get_swagger_view(title='Saifu Core API')
 
 urlpatterns = [
     path('', schema_view),
-    path('income', IncomeList.as_view()),
+    path('income/', IncomeList.as_view()),
     path('income_category/', IncomeCategoryList.as_view()),
     path('income_category/main/', IncomeCategoryMainList.as_view()),
     path('income_category/main/<uuid:pk>/', IncomeCategoryMainDetail.as_view()),
