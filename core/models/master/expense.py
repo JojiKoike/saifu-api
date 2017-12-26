@@ -16,7 +16,9 @@ class MExpenseCategorySub(MasterBase):
     """
     Expense Category Master (Sub)
     """
-    mExpenseCategoryMain = models.ForeignKey(MExpenseCategoryMain, on_delete=models.CASCADE)
+    mExpenseCategoryMain = models.ForeignKey(MExpenseCategoryMain,
+                                             on_delete=models.CASCADE,
+                                             related_name="expense_category_subs")
     name = models.CharField(max_length=30)
 
     def __str__(self):
