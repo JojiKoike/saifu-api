@@ -1,6 +1,8 @@
 from rest_framework import generics
 from ..models.master.income import MIncomeCategoryMain, MIncomeCategorySub
-from ..serializers.income import IncomeCategorySerializer, IncomeCategoryMainSerializer, IncomeCategorySubSerializer
+from ..models.transaction.income import TIncome
+from ..serializers.income import IncomeCategorySerializer, IncomeCategoryMainSerializer, \
+    IncomeCategorySubSerializer, IncomeSerializer
 
 
 class IncomeCategoryList(generics.ListAPIView):
@@ -41,3 +43,11 @@ class IncomeCategorySubDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = MIncomeCategorySub.objects.all()
     serializer_class = IncomeCategorySubSerializer
+
+
+class IncomeList(generics.ListCreateAPIView):
+    """
+    Income List View
+    """
+    queryset = TIncome.objects.all()
+    serializer_class = IncomeSerializer

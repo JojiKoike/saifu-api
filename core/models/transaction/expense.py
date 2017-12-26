@@ -17,7 +17,7 @@ class TExpenseDetail(UnModifiableTransactionBase):
     """
     Expense Detail Transaction
     """
-    tExpense = models.ForeignKey(TExpense, on_delete=models.CASCADE)
+    tExpense = models.ForeignKey(TExpense, on_delete=models.CASCADE, related_name='expense_details')
     amount = models.BigIntegerField()
     mExpenseCategorySub = models.ForeignKey(MExpenseCategorySub, on_delete=models.CASCADE)
     mSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE)

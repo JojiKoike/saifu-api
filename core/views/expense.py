@@ -1,7 +1,8 @@
 from rest_framework import generics
 from ..models.master.expense import MExpenseCategoryMain, MExpenseCategorySub
+from ..models.transaction.expense import TExpense
 from ..serializers.expense import ExpenseCategorySerializer, \
-    ExpenseCategoryMainSerializer, ExpenseCategorySubSerializer
+    ExpenseCategoryMainSerializer, ExpenseCategorySubSerializer, ExpenseSerializer
 
 
 class ExpenseCategoryList(generics.ListAPIView):
@@ -42,3 +43,11 @@ class ExpenseCategorySubDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = MExpenseCategorySub.objects.all()
     serializer_class = ExpenseCategorySubSerializer
+
+
+class ExpenseList(generics.ListCreateAPIView):
+    """
+    Expense List View
+    """
+    queryset = TExpense.objects.all()
+    serializer_class = ExpenseSerializer
