@@ -178,14 +178,16 @@ SWAGGER_SETTINGS = {
 # SMTP Settings
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+"""
 else:
+    ## This is GMail SMTP configuration sample
     EMAIL_USE_TLS = True
     EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_HOST_USER = 'joji.koike@gmail.com'
-    EMAIL_HOST_PASSWORD = 'mebygdsnujvbbrra'
+    EMAIL_HOST_USER = 'sample@gmail.com'
+    EMAIL_HOST_PASSWORD = 'password'
     EMAIL_PORT = 587
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
+"""
 
 # Django Debug Toolbar
 if DEBUG:
