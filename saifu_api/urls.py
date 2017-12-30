@@ -19,9 +19,13 @@ from django.conf import settings
 
 urlpatterns = [
     path("", include('core.urls')),
-    re_path('rest-auth/', include('rest_auth.urls')),
-    re_path('rest-auth/registration/', include('rest_auth.registration.urls')),
+    re_path('^auth/', include('djoser.urls')),
+    re_path('^auth/', include('djoser.urls.jwt')),
     path('admin/', admin.site.urls)
+]
+
+urlpatterns += [
+    re_path('^api-auth/', include('rest_framework.urls'))
 ]
 
 
