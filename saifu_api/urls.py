@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.conf import settings
 
 urlpatterns = [
     path("", include('core.urls')),
@@ -22,3 +23,13 @@ urlpatterns = [
     re_path('rest-auth/registration/', include('rest_auth.registration.urls')),
     path('admin/', admin.site.urls)
 ]
+
+
+"""
+For Debug Toolbar
+"""
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        re_path(r'^__debug__/', include(debug_toolbar.urls))
+    ]
