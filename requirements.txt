@@ -11,3 +11,4 @@ gunicorn==19.7.1
 psycopg2==2.7.3.2
 pytz==2017.3
 static3==0.7.0
+django-debug-toolbar==1.9.1
