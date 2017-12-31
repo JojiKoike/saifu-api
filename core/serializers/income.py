@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from ..models.master.income import MIncomeCategoryMain, MIncomeCategorySub
-from ..models.master.saifu import MSaifu
+from core.models.user.saifu import USaifu
 from ..models.transaction.income import TIncome, TIncomeDetail
 from ..models.transaction.credit import TCredit
+from ..serializers.credit import CreditSerializer
 
 
 class IncomeCategoryMainSerializer(serializers.ModelSerializer):
@@ -20,50 +21,41 @@ class IncomeCategorySubSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = MIncomeCategorySub
-        fields = ('id', 'name', 'mIncomeCategoryMain')
+        fields = ('id', 'name', 'm_income_category_main')
 
 
 class IncomeCategorySerializer(serializers.ModelSerializer):
     """
     Income Category Serializer (Main and Sub)
     """
-    income_category_sub = IncomeCategorySubSerializer(many=True, read_only=True)
+    m_income_category_subs = IncomeCategorySubSerializer(many=True, read_only=True)
 
     class Meta:
         model = MIncomeCategoryMain
-        fields = ('id', 'name', "income_category_sub")
+        fields = ('id', 'name', "m_income_category_subs")
 
 
 class IncomeDetailSerializer(serializers.ModelSerializer):
     """
     Income Detail Serializer
     """
-    mSaifu = serializers.UUIDField(required=True, write_only=True)
+    u_saifu = serializers.UUIDField(required=True, write_only=True)
 
     class Meta:
         model = TIncomeDetail
-        fields = ('id', 'amount', 'mIncomeCategorySub', 'mSaifu')
-
-
-class CreditSerializer(serializers.ModelSerializer):
-    """
-    Credit Serializer
-    """
-    class Meta:
-        model = TCredit
-        fields = ('id', 'amount', 'mCreditCategorySub')
+        fields = ('id', 'amount', 'm_income_category_sub', 'u_saifu', 'owner')
 
 
 class IncomeSerializer(serializers.ModelSerializer):
     """
     Income Serializer
     """
-    income_details = IncomeDetailSerializer(many=True)
+    t_income_details = IncomeDetailSerializer(many=True)
     credits = CreditSerializer(many=True)
 
     class Meta:
         model = TIncome
-        fields = ('id', 'paymentSourceName', 'incomeDate', 'note', 'income_details', 'credits')
+        fields = ('id', 'payment_source_name', 'income_date', 'note', 't_income_details', 't_credits', 'owner')
 
     def create(self, validated_data):
         """
@@ -77,8 +69,8 @@ class IncomeSerializer(serializers.ModelSerializer):
         (Attention : These procedure must be done before Income record create
                       because these attributes aren't included in TIncome.)
         """
-        income_details_data = validated_data.pop('income_details')
-        credits_data = validated_data.pop('credits')
+        income_details_data = validated_data.pop('t_income_details')
+        credits_data = validated_data.pop('t_credits')
 
         """
         Step.2 : Create Income Parent Object
@@ -92,13 +84,13 @@ class IncomeSerializer(serializers.ModelSerializer):
             """
             Step.2-2 : Update Saifu current balance
             """
-            m_saifu = MSaifu.objects.get(pk=income_detail_data.pop('mSaifu'))
-            m_saifu.currentBalance += income_amount
-            m_saifu.save()
+            u_saifu = USaifu.objects.get(pk=income_detail_data.pop('m_saifu'))
+            u_saifu.currentBalance += income_amount
+            u_saifu.save()
             """
             Step.2-3 : Create Income Detail records
             """
-            TIncomeDetail.objects.create(tIncome=income, mSaifu=m_saifu,
+            TIncomeDetail.objects.create(t_income=income, m_saifu=u_saifu,
                                          amount=income_amount, **income_detail_data)
 
         """

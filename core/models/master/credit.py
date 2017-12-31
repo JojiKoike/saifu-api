@@ -17,9 +17,9 @@ class MCreditCategorySub(MasterBase):
     Credit Category Sub Master
     """
     name = models.CharField(max_length=30)
-    mCreditCategoryMain \
+    m_credit_category_main \
         = models.ForeignKey(MCreditCategoryMain,
-                            on_delete=models.CASCADE, related_name='credit_category_subs')
+                            on_delete=models.CASCADE, related_name='m_credit_category_subs')
 
     def __str__(self):
         return self.name

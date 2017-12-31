@@ -10,17 +10,3 @@ class MSaifuCategory(MasterBase):
 
     def __str__(self):
         return self.name
-
-
-class MSaifu(MasterBase):
-    """
-    Account Master
-    """
-    name = models.CharField(max_length=30)
-    currentBalance = models.BigIntegerField()
-    mSaifuCategory = models.ForeignKey(MSaifuCategory,
-                                       on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-

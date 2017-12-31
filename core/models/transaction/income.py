@@ -1,23 +1,25 @@
 from django.db import models
-from core.models.base.transactionbase import TransactionBase, UnModifiableTransactionBase
+from core.models.base.transactionbase import TransactionBase
 from ..master.income import MIncomeCategorySub
-from ..master.saifu import MSaifu
+from core.models.user.saifu import USaifu
 
 
 class TIncome(TransactionBase):
     """
     Income Transaction
     """
-    paymentSourceName = models.CharField(max_length=30, blank=True, default='')
-    incomeDate = models.DateField()
+    payment_source_name = models.CharField(max_length=30, blank=True, default='')
+    income_date = models.DateField()
     note = models.TextField()
+    owner = models.ForeignKey('auth.User', related_name='t_incomes', on_delete=models.CASCADE)
 
 
-class TIncomeDetail(UnModifiableTransactionBase):
+class TIncomeDetail(TransactionBase):
     """
     Income Detail Transaction
     """
-    tIncome = models.ForeignKey(TIncome, on_delete=models.CASCADE, related_name="income_details")
+    t_income = models.ForeignKey(TIncome, on_delete=models.CASCADE, related_name="t_income_details")
     amount = models.BigIntegerField()
-    mIncomeCategorySub = models.ForeignKey(MIncomeCategorySub, on_delete=models.CASCADE)
-    mSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE)
+    m_income_category_sub = models.ForeignKey(MIncomeCategorySub, on_delete=models.CASCADE)
+    u_saifu = models.ForeignKey(USaifu, on_delete=models.CASCADE)
+    owner = models.ForeignKey('auth.User', related_name='t_income_details', on_delete=models.CASCADE)

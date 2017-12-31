@@ -1,14 +1,15 @@
 from django.db import models
-from ..base.transactionbase import UnModifiableTransactionBase
-from ..master.saifu import MSaifu
+from ..base.transactionbase import TransactionBase
+from core.models.user.saifu import USaifu
 
 
-class TTransferBetweenSaifu(UnModifiableTransactionBase):
+class TTransferBetweenSaifu(TransactionBase):
     """
     Transfer Between Saifu Model
     """
-    transferDate = models.DateField()
+    transfer_date = models.DateField()
     amount = models.BigIntegerField()
     note = models.TextField()
-    fromSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE, related_name="from_saifu")
-    toSaifu = models.ForeignKey(MSaifu, on_delete=models.CASCADE, related_name="to_saifu")
+    from_u_saifu = models.ForeignKey(USaifu, on_delete=models.CASCADE, related_name='from_u_saifu')
+    to_u_saifu = models.ForeignKey(USaifu, on_delete=models.CASCADE, related_name='to_u_saifu')
+    owner = models.ForeignKey('auth.User', related_name='t_transfer_between_saifus', on_delete=models.CASCADE)

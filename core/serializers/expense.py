@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from ..models.master.expense import MExpenseCategoryMain, MExpenseCategorySub
 from ..models.transaction.expense import TExpense, TExpenseDetail
-from ..models.master.saifu import MSaifu
+from core.models.user.saifu import USaifu
 
 
 class ExpenseCategoryMainSerializer(serializers.ModelSerializer):
@@ -19,40 +19,40 @@ class ExpenseCategorySubSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = MExpenseCategorySub
-        fields = ('id', 'name', 'mExpenseCategoryMain')
+        fields = ('id', 'name', 'm_expense_category_main')
 
 
 class ExpenseCategorySerializer(serializers.ModelSerializer):
     """
-    Expense Category Serializer
+    Expense Category (Main & Sub) Serializer
     """
-    expense_category_subs = ExpenseCategorySubSerializer(many=True)
+    m_expense_category_subs = ExpenseCategorySubSerializer(many=True, read_only=True)
 
     class Meta:
         model = MExpenseCategoryMain
-        fields = ('id', 'name', 'expense_category_subs')
+        fields = ('id', 'name', 'm_expense_category_subs')
 
 
 class ExpenseDetailSerializer(serializers.ModelSerializer):
     """
     Expense Detail Serializer
     """
-    mSaifu = serializers.UUIDField(required=True, write_only=True)
+    u_saifu = serializers.UUIDField(required=True, write_only=True)
 
     class Meta:
         model = TExpenseDetail
-        fields = ('id', 'amount', 'mExpenseCategorySub', 'mSaifu')
+        fields = ('id', 'amount', 'm_expense_category_sub', 'u_saifu', 'owner')
 
 
 class ExpenseSerializer(serializers.ModelSerializer):
     """
     Expense Serializer
     """
-    expense_details = ExpenseDetailSerializer(many=True)
+    t_expense_details = ExpenseDetailSerializer(many=True)
 
     class Meta:
         model = TExpense
-        fields = ('id', 'paymentRecipientName', 'expenseDate', 'note', 'expense_details')
+        fields = ('id', 'payment_recipient_name', 'expense_date', 'note', 't_expense_details')
 
     def create(self, validated_data):
         """
@@ -60,7 +60,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
         :param validated_data: Expense, ExpenseDetails
         :return: Expense
         """
-        expense_details_data = validated_data.pop('expense_details')
+        expense_details_data = validated_data.pop('t_expense_details')
         expense = TExpense.objects.create(**validated_data)
         for expense_detail_data in expense_details_data:
             """
@@ -71,14 +71,14 @@ class ExpenseSerializer(serializers.ModelSerializer):
             """
             Step 2-2 : Update Saifu Current Balance
             """
-            m_saifu = MSaifu.objects.get(pk=expense_detail_data.pop('mSaifu'))
-            m_saifu.currentBalance -= expense_amount
-            m_saifu.save()
+            u_saifu = USaifu.objects.get(pk=expense_detail_data.pop('u_saifu'))
+            u_saifu.currentBalance -= expense_amount
+            u_saifu.save()
 
             """
             Step 2-3 : Create Expense Detail records
             """
-            TExpenseDetail.objects.create(tExpense=expense, mSaifu=m_saifu,
+            TExpenseDetail.objects.create(t_expense=expense, u_saifu=u_saifu,
                                           amount=expense_amount, **expense_detail_data)
 
         return expense
