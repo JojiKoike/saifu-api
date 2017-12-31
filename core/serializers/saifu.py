@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models.master.saifu import MSaifuCategory, MSaifu
+from core.models.user.saifu import MSaifuCategory, USaifu
 
 
 class SaifuCategorySerializer(serializers.ModelSerializer):
@@ -16,5 +16,5 @@ class SaifuSerializer(serializers.ModelSerializer):
     Saifu Serializer
     """
     class Meta:
-        model = MSaifu
-        fields = ('id', 'name', 'currentBalance', 'mSaifuCategory')
+        model = USaifu
+        fields = ('id', 'name', 'current_balance', 'm_saifu_category', 'owner')

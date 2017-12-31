@@ -2,7 +2,8 @@ from django.test import TestCase
 from core.models.master.income import *
 from core.models.master.expense import *
 from core.models.master.credit import *
-from core.models.master.saifu import *
+from core.models.user.saifu import *
+from django.contrib.auth.models import User
 
 
 class MIncomeCategoryMainTests(TestCase):
@@ -28,7 +29,7 @@ class MIncomeCategorySubTests(TestCase):
 
     def test_IncomeCategorySubName_Saved_Correctly(self):
         incomecategorymain = MIncomeCategoryMain.objects.get(name="資産収入")
-        incomecategorysub = MIncomeCategorySub(mIncomeCategoryMain=incomecategorymain, name="家賃収入")
+        incomecategorysub = MIncomeCategorySub(m_income_category_main=incomecategorymain, name="家賃収入")
         self.assertEqual(incomecategorysub.name, "家賃収入")
 
 
@@ -55,7 +56,7 @@ class MExpenseCategorySubTests(TestCase):
 
     def test_ExpenseCategorySubName_Saved_Correctly(self):
         expensecategorymain = MExpenseCategoryMain.objects.get(name="日用品費")
-        expensecategorysub = MExpenseCategorySub(mExpenseCategoryMain=expensecategorymain, name="洗剤")
+        expensecategorysub = MExpenseCategorySub(m_expense_category_main=expensecategorymain, name="洗剤")
         self.assertEqual(expensecategorysub.name, "洗剤")
 
 
@@ -68,8 +69,8 @@ class MCreditCategoryMainTests(TestCase):
         MCreditCategoryMain.objects.create(name="税金")
 
     def test_MCreditCategoryMainName_Saved_Correctly(self):
-        mCreditCategoryMain = MCreditCategoryMain.objects.get(name="税金")
-        self.assertEqual(mCreditCategoryMain.name, "税金")
+        m_credit_category_main = MCreditCategoryMain.objects.get(name="税金")
+        self.assertEqual(m_credit_category_main.name, "税金")
 
 
 class MCreditCategorySubTests(TestCase):
@@ -81,11 +82,11 @@ class MCreditCategorySubTests(TestCase):
         MCreditCategoryMain.objects.create(name="社会保険料")
 
     def test_MCreditCategorySubName_Saved_Correctly(self):
-        creditCategoryMain = MCreditCategoryMain.objects.get(name="社会保険料")
-        MCreditCategorySub.objects.create(name="厚生年金保険料", mCreditCategoryMain=creditCategoryMain)
-        mCreditCategorySub = MCreditCategorySub.objects.get(name="厚生年金保険料")
-        self.assertEqual(mCreditCategorySub.name, "厚生年金保険料")
-        self.assertEqual(mCreditCategorySub.mCreditCategoryMain.name, "社会保険料")
+        credit_category_main = MCreditCategoryMain.objects.get(name="社会保険料")
+        MCreditCategorySub.objects.create(name="厚生年金保険料", m_credit_category_main=credit_category_main)
+        m_credit_category_sub = MCreditCategorySub.objects.get(name="厚生年金保険料")
+        self.assertEqual(m_credit_category_sub.name, "厚生年金保険料")
+        self.assertEqual(m_credit_category_sub.m_credit_category_main.name, "社会保険料")
 
 
 class MSaifuCategoryTests(TestCase):
@@ -110,11 +111,16 @@ class MSaifuTests(TestCase):
     Saifu Master Tests
     """
 
+    owner = None
+    m_saifu_category = None
+
     def setUp(self):
-        MSaifuCategory.objects.create(name="電子マネー")
+        self.owner = User.objects.create_user("TestUser", 'test@test.com', 'password')
+        self.m_saifu_category = MSaifuCategory.objects.create(name='電子マネー')
 
     def test_MSaifu_Saved_Correctly(self):
-        saifuCategory = MSaifuCategory.objects.get(name="電子マネー")
-        mSaifu = MSaifu.objects.create(name="Suica", currentBalance=5000, mSaifuCategory=saifuCategory)
-        self.assertEqual(mSaifu.name, "Suica")
-        self.assertEqual(mSaifu.mSaifuCategory.name, "電子マネー")
+        u_saifu = USaifu.objects.create(name="Suica", current_balance=5000,
+                                        m_saifu_category=self.m_saifu_category, owner=self.owner)
+        self.assertEqual(u_saifu.name, "Suica")
+        self.assertEqual(u_saifu.current_balance, 5000)
+        self.assertEqual(u_saifu.m_saifu_category.name, "電子マネー")

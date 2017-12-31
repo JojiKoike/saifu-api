@@ -16,9 +16,9 @@ class MIncomeCategorySub(MasterBase):
     """
     Income Category Master (Sub)
     """
-    mIncomeCategoryMain = models.ForeignKey(MIncomeCategoryMain,
-                                            on_delete=models.CASCADE, related_name='income_category_sub')
     name = models.CharField(max_length=30)
+    m_income_category_main = models.ForeignKey(MIncomeCategoryMain,
+                                               on_delete=models.CASCADE, related_name='m_income_category_subs')
 
     def __str__(self):
         return self.name

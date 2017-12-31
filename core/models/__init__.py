@@ -1,6 +1,7 @@
 from .base.mastarbase import MasterBase
 from .base.transactionbase import TransactionBase
-from .master.saifu import MSaifu, MSaifuCategory
+from .user.saifu import USaifu
+from .master.saifu import MSaifuCategory
 from .master.income import MIncomeCategoryMain, MIncomeCategorySub
 from .master.expense import MExpenseCategoryMain, MExpenseCategorySub
 from .master.credit import MCreditCategoryMain, MCreditCategorySub

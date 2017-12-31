@@ -1,17 +1,17 @@
 from rest_framework import serializers
 from ..models.transaction.transfer import TTransferBetweenSaifu
-from ..models.master.saifu import MSaifu
+from core.models.user.saifu import USaifu
 
 
 class TransferBetweenSaifuSerializer(serializers.ModelSerializer):
-    fromSaifu = serializers.UUIDField(required=True, write_only=True)
-    toSaifu = serializers.UUIDField(required=True, write_only=True)
+    from_u_saifu = serializers.UUIDField(required=True, write_only=True)
+    to_u_saifu = serializers.UUIDField(required=True, write_only=True)
     """
     Transfer Between Saifu Serializer
     """
     class Meta:
         model = TTransferBetweenSaifu
-        fields = ('id', 'transferDate', 'amount', 'note', 'fromSaifu', 'toSaifu')
+        fields = ('id', 'transfer_date', 'amount', 'note', 'from_u_saifu', 'to_u_saifu', 'owner')
 
     def create(self, validated_data):
         """
@@ -27,19 +27,20 @@ class TransferBetweenSaifuSerializer(serializers.ModelSerializer):
         """
         Step 2 : Update From Saifu Current Balance
         """
-        from_saifu = MSaifu.objects.get(pk=validated_data.pop('fromSaifu'))
-        from_saifu.currentBalance -= transfer_amount
-        from_saifu.save()
+        from_u_saifu = USaifu.objects.get(pk=validated_data.pop('from_u_saifu'))
+        from_u_saifu.currentBalance -= transfer_amount
+        from_u_saifu.save()
         """
         Step 3 : Update To Saifu Current Balance
         """
-        to_saifu = MSaifu.objects.get(pk=validated_data.pop('toSaifu'))
-        to_saifu.currentBalance += transfer_amount
-        to_saifu.save()
+        to_u_saifu = USaifu.objects.get(pk=validated_data.pop('to_u_saifu'))
+        to_u_saifu.currentBalance += transfer_amount
+        to_u_saifu.save()
         """
         Step 4 : Create Transfer Between Saifu Transaction Record
         """
-        transfer_between_saifu = TTransferBetweenSaifu.objects.create(amount=transfer_amount, fromSaifu=from_saifu,
-                                                                      toSaifu=to_saifu, **validated_data)
+        transfer_between_saifu = TTransferBetweenSaifu.objects.create(amount=transfer_amount,
+                                                                      from_u_saifu=from_u_saifu,
+                                                                      to_u_saifu=to_u_saifu, **validated_data)
 
         return transfer_between_saifu

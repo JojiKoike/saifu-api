@@ -12,15 +12,3 @@ class TransactionBase(models.Model):
 
     class Meta:
         abstract = True
-
-
-class UnModifiableTransactionBase(models.Model):
-    """
-    Unmodifiable Transaction Base Model
-    """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created = models.DateTimeField(auto_now=False, auto_now_add=True)
-
-    class Meta:
-        abstract = True
-

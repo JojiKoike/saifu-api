@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from ..models.master.saifu import MSaifuCategory, MSaifu
+from core.models.user.saifu import MSaifuCategory
+from core.models.user.saifu import USaifu
 from ..serializers.saifu import SaifuCategorySerializer, SaifuSerializer
 
 
@@ -33,7 +34,7 @@ class SaifuList(generics.ListCreateAPIView):
     """
     Saifu List View
     """
-    queryset = MSaifu.objects.all()
+    queryset = USaifu.objects.all()
     serializer_class = SaifuSerializer
 
     def perform_create(self, serializer):
@@ -48,5 +49,5 @@ class SaifuDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Saifu Detail View
     """
-    queryset = MSaifu.objects.all()
+    queryset = USaifu.objects.all()
     serializer_class = SaifuSerializer
