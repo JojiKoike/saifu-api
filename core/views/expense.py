@@ -1,53 +1,43 @@
-from rest_framework import generics
+from .base import viewbase
 from ..models.master.expense import MExpenseCategoryMain, MExpenseCategorySub
 from ..models.transaction.expense import TExpense
 from ..serializers.expense import ExpenseCategorySerializer, \
-    ExpenseCategoryMainSerializer, ExpenseCategorySubSerializer, ExpenseSerializer
+    ExpenseCategoryMainSerializer, ExpenseCategorySubSerializer, \
+    ExpenseSerializer
 
 
-class ExpenseCategoryList(generics.ListAPIView):
+class ExpenseCategoryViewSet(viewbase.ReadOnlyViewSetBase):
     """
-    Expense Category List View (Full Tree Structure)
+    A ViewSet for Expense Category List
     """
     queryset = MExpenseCategoryMain.objects.all()
     serializer_class = ExpenseCategorySerializer
 
 
-class ExpenseCategoryMainList(generics.ListCreateAPIView):
+class ExpenseCategoryMainViewSet(viewbase.AdminEditableViewSetBase):
     """
-    Expense Category Main List View (ONLY for Edit)
-    """
-    queryset = MExpenseCategoryMain.objects.all()
-    serializer_class = ExpenseCategoryMainSerializer
-
-
-class ExpenseCategoryMainDetail(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Expense Category Main Detail View (ONLY for Edit)
+    A ViewSet for Expense Category Main List
     """
     queryset = MExpenseCategoryMain.objects.all()
     serializer_class = ExpenseCategoryMainSerializer
 
 
-class ExpenseCategorySubList(generics.ListCreateAPIView):
+class ExpenseCategorySubViewSet(viewbase.AdminEditableViewSetBase):
     """
-    Expense Category Sub List View (ONLY for Edit)
-    """
-    queryset = MExpenseCategorySub.objects.all()
-    serializer_class = ExpenseCategorySubSerializer
-
-
-class ExpenseCategorySubDetail(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Expense Category Sub Detail View (ONLY for Edit)
+    A ViewSet for Expense Category Sub List
     """
     queryset = MExpenseCategorySub.objects.all()
     serializer_class = ExpenseCategorySubSerializer
 
 
-class ExpenseList(generics.ListCreateAPIView):
+class ExpenseViewSet(viewbase.IsOwnerOnlyViewSetBase):
     """
-    Expense List View
+    A ViewSet for Expense
     """
-    queryset = TExpense.objects.all()
     serializer_class = ExpenseSerializer
+
+    def get_queryset(self):
+        return TExpense.objects.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

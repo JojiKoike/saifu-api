@@ -1,44 +1,42 @@
-from rest_framework import generics
+from .base import viewbase
 from ..models.master.credit import MCreditCategoryMain, MCreditCategorySub
+from ..models.transaction.credit import TCredit
 from ..serializers.credit import CreditCategorySerializer, \
-    CreditCategoryMainSerializer, CreditCategorySubSerializer
+    CreditCategoryMainSerializer, CreditCategorySubSerializer, CreditSerializer
 
 
-class CreditCategoryList(generics.ListAPIView):
+class CreditCategoryViewSet(viewbase.ReadOnlyViewSetBase):
     """
-    Credit Category List View (Full Tree Structure)
+    A ViewSet for Credit Category List
     """
     queryset = MCreditCategoryMain.objects.all()
     serializer_class = CreditCategorySerializer
 
 
-class CreditCategoryMainList(generics.ListCreateAPIView):
+class CreditCategoryMainViewSet(viewbase.AdminEditableViewSetBase):
     """
-    Credit Category Main ListView
-    """
-    queryset = MCreditCategoryMain.objects.all()
-    serializer_class = CreditCategoryMainSerializer
-
-
-class CreditCategoryMainDetail(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Credit Category Main Detail
+    A ViewSet for Credit Category Main List
     """
     queryset = MCreditCategoryMain.objects.all()
     serializer_class = CreditCategoryMainSerializer
 
 
-class CreditCategorySubList(generics.ListCreateAPIView):
+class CreditCategorySubViewSet(viewbase.AdminEditableViewSetBase):
     """
-    Credit Category Sub ListView
+    A ViewSet for Credit Category Sub List
     """
     queryset = MCreditCategorySub.objects.all()
     serializer_class = CreditCategorySubSerializer
 
 
-class CreditCategorySubDetail(generics.RetrieveUpdateDestroyAPIView):
+class CreditViewSet(viewbase.IsOwnerOnlyViewSetBase):
     """
-    Credit Category Sub Detail
+    A ViewSet for Credit
     """
-    queryset = MCreditCategorySub.objects.all()
-    serializer_class = CreditCategorySubSerializer
+    serializer_class = CreditSerializer
+
+    def get_queryset(self):
+        return TCredit.objects.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

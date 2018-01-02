@@ -1,17 +1,37 @@
-from django.urls import path, re_path
-from rest_framework.urlpatterns import format_suffix_patterns
+from django.urls import path
 from rest_framework_swagger.views import get_swagger_view
-from core.views.income import IncomeCategoryList, IncomeCategoryMainList, IncomeCategoryMainDetail, \
-    IncomeCategorySubList, IncomeCategorySubDetail, IncomeList
-from core.views.saifu import SaifuCategoryList, SaifuCategoryDetail, SaifuList, SaifuDetail
-from core.views.credit import CreditCategoryList, \
-    CreditCategoryMainList, CreditCategoryMainDetail, CreditCategorySubList, CreditCategorySubDetail
-from core.views.expense import ExpenseCategoryList, ExpenseCategoryMainList, ExpenseCategoryMainDetail, \
-    ExpenseCategorySubList, ExpenseCategorySubDetail, ExpenseList
-from core.views.transfer import TransferBetweenSaifuList
+from rest_framework.routers import DefaultRouter
+from core.views.saifu import SaifuCategoryViewSet, SaifuViewSet
+from core.views.credit import CreditCategoryViewSet, \
+    CreditCategoryMainViewSet, CreditCategorySubViewSet
+from core.views.expense import ExpenseCategoryViewSet, \
+    ExpenseCategoryMainViewSet, ExpenseCategorySubViewSet, ExpenseViewSet
 
+"""
+Swagger url configuration
+"""
 schema_view = get_swagger_view(title='Saifu Core API')
 
+urlpatterns = [
+    path('', schema_view),
+]
+
+"""
+Saifu core api url configuration
+"""
+router = DefaultRouter()
+router.register(r'saifu_categories', SaifuCategoryViewSet)
+router.register(r'saifu', SaifuViewSet, base_name='saifu')
+router.register(r'credit_categories', CreditCategoryViewSet)
+router.register(r'credit_category_main', CreditCategoryMainViewSet)
+router.register(r'credit_category_sub', CreditCategorySubViewSet)
+router.register(r'expense_categories', ExpenseCategoryViewSet)
+router.register(r'expense_category_main', ExpenseCategoryMainViewSet)
+router.register(r'expense_category_sub', ExpenseCategorySubViewSet)
+router.register(r'expense', ExpenseViewSet, base_name='expense')
+urlpatterns += router.urls
+
+"""
 urlpatterns = [
     path('', schema_view),
     re_path('income/', IncomeList.as_view()),
@@ -30,8 +50,9 @@ urlpatterns = [
             ExpenseCategorySubDetail.as_view()),
     re_path('expense_category/sub/', ExpenseCategorySubList.as_view()),
     re_path('expense_category/', ExpenseCategoryList.as_view()),
-    re_path('saifu_category/(?P<pk>[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12})/',
-            SaifuCategoryDetail.as_view()),
+    #re_path('saifu_category/(?P<pk>[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12})/',
+    #        SaifuCategoryDetail.as_view()),
+    # re_path('saifu_category/', SaifuCategoryList.as_view()),
     re_path('credit_category/', CreditCategoryList.as_view()),
     re_path('credit_category/main/(?P<pk>[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12})/',
             CreditCategoryMainDetail.as_view()),
@@ -39,10 +60,8 @@ urlpatterns = [
     re_path('credit_category/sub/(?P<pk>[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12})/',
             CreditCategorySubDetail.as_view()),
     re_path('credit_category/sub/', CreditCategorySubList.as_view()),
-    re_path('saifu_category/', SaifuCategoryList.as_view()),
     re_path('saifu/(?P<pk>[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12})/', SaifuDetail.as_view()),
     re_path('saifu/', SaifuList.as_view()),
     re_path('transfer_between_saifu/', TransferBetweenSaifuList.as_view())
 ]
-
-urlpatterns = format_suffix_patterns(urlpatterns)
+"""

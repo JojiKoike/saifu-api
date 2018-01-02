@@ -11,7 +11,7 @@ class TransferBetweenSaifuSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = TTransferBetweenSaifu
-        fields = ('id', 'transfer_date', 'amount', 'note', 'from_u_saifu', 'to_u_saifu', 'owner')
+        fields = ('id', 'transfer_date', 'amount', 'note', 'from_u_saifu', 'to_u_saifu')
 
     def create(self, validated_data):
         """

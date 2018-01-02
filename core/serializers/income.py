@@ -43,7 +43,7 @@ class IncomeDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TIncomeDetail
-        fields = ('id', 'amount', 'm_income_category_sub', 'u_saifu', 'owner')
+        fields = ('id', 'amount', 'm_income_category_sub', 'u_saifu')
 
 
 class IncomeSerializer(serializers.ModelSerializer):
@@ -55,7 +55,7 @@ class IncomeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TIncome
-        fields = ('id', 'payment_source_name', 'income_date', 'note', 't_income_details', 't_credits', 'owner')
+        fields = ('id', 'payment_source_name', 'income_date', 'note', 't_income_details', 't_credits')
 
     def create(self, validated_data):
         """
