@@ -39,7 +39,7 @@ class IncomeDetailSerializer(serializers.ModelSerializer):
     """
     Income Detail Serializer
     """
-    u_saifu = serializers.UUIDField(required=True, write_only=True)
+    u_saifu = serializers.UUIDField(required=True)
 
     class Meta:
         model = TIncomeDetail
@@ -51,7 +51,7 @@ class IncomeSerializer(serializers.ModelSerializer):
     Income Serializer
     """
     t_income_details = IncomeDetailSerializer(many=True)
-    credits = CreditSerializer(many=True)
+    t_credits = CreditSerializer(many=True)
 
     class Meta:
         model = TIncome
@@ -65,17 +65,25 @@ class IncomeSerializer(serializers.ModelSerializer):
         """
 
         """
-        Step.1 : Get Income Details and Credits data from Input JSON.
-        (Attention : These procedure must be done before Income record create
-                      because these attributes aren't included in TIncome.)
+        Step 1 : Create Parent Income Record
         """
         income_details_data = validated_data.pop('t_income_details')
         credits_data = validated_data.pop('t_credits')
+        income = TIncome.objects.create(**validated_data)
 
         """
-        Step.2 : Create Income Parent Object
+        Step 2 : Get Owner Data
         """
-        income = TIncome.objects.create(**validated_data)
+        owner = validated_data.pop('owner')
+
+        """
+        Step 3 : Create Owner's Saifu List
+        """
+        u_saifu_query_set = USaifu.objects.filter(owner=owner)
+
+        """
+        Step 4 : Record Each Expense detail and Credit
+        """
         for income_detail_data in income_details_data:
             """
             Step.2-1 : Get each Income Detail amount
@@ -84,20 +92,20 @@ class IncomeSerializer(serializers.ModelSerializer):
             """
             Step.2-2 : Update Saifu current balance
             """
-            u_saifu = USaifu.objects.get(pk=income_detail_data.pop('m_saifu'))
+            u_saifu = u_saifu_query_set.get(pk=income_detail_data.pop('m_saifu'))
             u_saifu.currentBalance += income_amount
             u_saifu.save()
             """
             Step.2-3 : Create Income Detail records
             """
             TIncomeDetail.objects.create(t_income=income, m_saifu=u_saifu,
-                                         amount=income_amount, **income_detail_data)
+                                         amount=income_amount, owner=owner, **income_detail_data)
 
         """
-        Step.3 : Create Credit records
+        Step 5 : Create Credit records
         """
         for credit_data in credits_data:
-            TCredit.objects.create(tIncome=income, **credit_data)
+            TCredit.objects.create(tIncome=income, owner=owner, **credit_data)
 
         return income
 

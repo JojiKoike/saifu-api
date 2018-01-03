@@ -2,8 +2,7 @@ from .base import viewbase
 from ..models.master.expense import MExpenseCategoryMain, MExpenseCategorySub
 from ..models.transaction.expense import TExpense
 from ..serializers.expense import ExpenseCategorySerializer, \
-    ExpenseCategoryMainSerializer, ExpenseCategorySubSerializer, \
-    ExpenseSerializer
+    ExpenseCategoryMainSerializer, ExpenseCategorySubSerializer, ExpenseSerializer
 
 
 class ExpenseCategoryViewSet(viewbase.ReadOnlyViewSetBase):

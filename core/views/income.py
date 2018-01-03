@@ -1,53 +1,42 @@
-from rest_framework import generics
+from .base import viewbase
 from ..models.master.income import MIncomeCategoryMain, MIncomeCategorySub
 from ..models.transaction.income import TIncome
 from ..serializers.income import IncomeCategorySerializer, IncomeCategoryMainSerializer, \
     IncomeCategorySubSerializer, IncomeSerializer
 
 
-class IncomeCategoryList(generics.ListAPIView):
+class IncomeCategoryViewSet(viewbase.ReadOnlyViewSetBase):
     """
-    Income Category List View (Full Tree Structure)
+    A ViewSet for Income Category List
     """
     queryset = MIncomeCategoryMain.objects.all()
     serializer_class = IncomeCategorySerializer
 
 
-class IncomeCategoryMainList(generics.ListCreateAPIView):
+class IncomeCategoryMainViewSet(viewbase.AdminEditableViewSetBase):
     """
-    Income Category Main List View (ONLY for Edit)
-    """
-    queryset = MIncomeCategoryMain.objects.all()
-    serializer_class = IncomeCategoryMainSerializer
-
-
-class IncomeCategoryMainDetail(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Income Category Main Detail View (ONLY for Edit)
+    A ViewSet for Income Category Main List
     """
     queryset = MIncomeCategoryMain.objects.all()
     serializer_class = IncomeCategoryMainSerializer
 
 
-class IncomeCategorySubList(generics.ListCreateAPIView):
+class IncomeCategorySubViewSet(viewbase.AdminEditableViewSetBase):
     """
-    Income Category Sub List View (ONLY for Edit)
-    """
-    queryset = MIncomeCategorySub.objects.all()
-    serializer_class = IncomeCategorySubSerializer
-
-
-class IncomeCategorySubDetail(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Income Category Sub Detail View (ONLY for Edit)
+    A ViewSet for Income Category Sub List
     """
     queryset = MIncomeCategorySub.objects.all()
     serializer_class = IncomeCategorySubSerializer
 
 
-class IncomeList(generics.ListCreateAPIView):
+class IncomeViewSet(viewbase.IsOwnerOnlyViewSetBase):
     """
-    Income List View
+    A ViewSet for Income
     """
-    queryset = TIncome.objects.all()
     serializer_class = IncomeSerializer
+
+    def get_queryset(self):
+        return TIncome.objects.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
