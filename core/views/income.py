@@ -1,32 +1,15 @@
 from .base import viewbase
-from ..models.master.income import MIncomeCategoryMain, MIncomeCategorySub
+from ..models.master.income import MIncomeCategoryMain
 from ..models.transaction.income import TIncome
-from ..serializers.income import IncomeCategorySerializer, IncomeCategoryMainSerializer, \
-    IncomeCategorySubSerializer, IncomeSerializer
+from ..serializers.income import IncomeCategorySerializer, IncomeSerializer
 
 
-class IncomeCategoryViewSet(viewbase.ReadOnlyViewSetBase):
+class IncomeCategoryViewSet(viewbase.AdminEditableViewSetBase):
     """
     A ViewSet for Income Category List
     """
     queryset = MIncomeCategoryMain.objects.all()
     serializer_class = IncomeCategorySerializer
-
-
-class IncomeCategoryMainViewSet(viewbase.AdminEditableViewSetBase):
-    """
-    A ViewSet for Income Category Main List
-    """
-    queryset = MIncomeCategoryMain.objects.all()
-    serializer_class = IncomeCategoryMainSerializer
-
-
-class IncomeCategorySubViewSet(viewbase.AdminEditableViewSetBase):
-    """
-    A ViewSet for Income Category Sub List
-    """
-    queryset = MIncomeCategorySub.objects.all()
-    serializer_class = IncomeCategorySubSerializer
 
 
 class IncomeViewSet(viewbase.IsOwnerOnlyViewSetBase):

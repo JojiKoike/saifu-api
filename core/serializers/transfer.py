@@ -4,8 +4,8 @@ from core.models.user.saifu import USaifu
 
 
 class TransferBetweenSaifuSerializer(serializers.ModelSerializer):
-    from_u_saifu = serializers.UUIDField(required=True, write_only=True)
-    to_u_saifu = serializers.UUIDField(required=True, write_only=True)
+    from_u_saifu = serializers.UUIDField(required=True)
+    to_u_saifu = serializers.UUIDField(required=True)
     """
     Transfer Between Saifu Serializer
     """
@@ -20,27 +20,28 @@ class TransferBetweenSaifuSerializer(serializers.ModelSerializer):
         :return: TransferBetweenSaifu
         """
 
-        """
-        Step 1 : Get Transfer Amount
-        """
         transfer_amount = validated_data.pop('amount')
+        owner = validated_data.pop('owner')
+        u_saifu_query_set = USaifu.objects.filter(owner=owner)
+
         """
-        Step 2 : Update From Saifu Current Balance
+        Update From Saifu Current Balance
         """
-        from_u_saifu = USaifu.objects.get(pk=validated_data.pop('from_u_saifu'))
+        from_u_saifu = u_saifu_query_set.get(pk=validated_data.pop('from_u_saifu'))
         from_u_saifu.currentBalance -= transfer_amount
         from_u_saifu.save()
         """
-        Step 3 : Update To Saifu Current Balance
+        Update To Saifu Current Balance
         """
-        to_u_saifu = USaifu.objects.get(pk=validated_data.pop('to_u_saifu'))
+        to_u_saifu = u_saifu_query_set.get(pk=validated_data.pop('to_u_saifu'))
         to_u_saifu.currentBalance += transfer_amount
         to_u_saifu.save()
         """
-        Step 4 : Create Transfer Between Saifu Transaction Record
+        Create Transfer Between Saifu Transaction Record
         """
         transfer_between_saifu = TTransferBetweenSaifu.objects.create(amount=transfer_amount,
                                                                       from_u_saifu=from_u_saifu,
-                                                                      to_u_saifu=to_u_saifu, **validated_data)
+                                                                      to_u_saifu=to_u_saifu, owner=owner,
+                                                                      **validated_data)
 
         return transfer_between_saifu

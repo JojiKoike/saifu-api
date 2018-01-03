@@ -1,32 +1,15 @@
 from .base import viewbase
-from ..models.master.credit import MCreditCategoryMain, MCreditCategorySub
+from ..models.master.credit import MCreditCategoryMain
 from ..models.transaction.credit import TCredit
-from ..serializers.credit import CreditCategorySerializer, \
-    CreditCategoryMainSerializer, CreditCategorySubSerializer, CreditSerializer
+from ..serializers.credit import CreditCategorySerializer, CreditSerializer
 
 
-class CreditCategoryViewSet(viewbase.ReadOnlyViewSetBase):
+class CreditCategoryViewSet(viewbase.AdminEditableViewSetBase):
     """
     A ViewSet for Credit Category List
     """
     queryset = MCreditCategoryMain.objects.all()
     serializer_class = CreditCategorySerializer
-
-
-class CreditCategoryMainViewSet(viewbase.AdminEditableViewSetBase):
-    """
-    A ViewSet for Credit Category Main List
-    """
-    queryset = MCreditCategoryMain.objects.all()
-    serializer_class = CreditCategoryMainSerializer
-
-
-class CreditCategorySubViewSet(viewbase.AdminEditableViewSetBase):
-    """
-    A ViewSet for Credit Category Sub List
-    """
-    queryset = MCreditCategorySub.objects.all()
-    serializer_class = CreditCategorySubSerializer
 
 
 class CreditViewSet(viewbase.IsOwnerOnlyViewSetBase):

@@ -1,1 +1,0 @@
-from .income import IncomeCategoryMainSerializer

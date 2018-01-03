@@ -3,15 +3,6 @@ from ..models.master.credit import MCreditCategoryMain, MCreditCategorySub
 from ..models.transaction.credit import TCredit
 
 
-class CreditCategoryMainSerializer(serializers.ModelSerializer):
-    """
-    Credit Category (Main) Serializer
-    """
-    class Meta:
-        model = MCreditCategoryMain
-        fields = ('id', 'name')
-
-
 class CreditCategorySubSerializer(serializers.ModelSerializer):
     """
     Credit Category (Sub) Serializer
@@ -25,11 +16,19 @@ class CreditCategorySerializer(serializers.ModelSerializer):
     """
     Credit Category (Main & Sub) Serializer
     """
-    m_credit_category_subs = CreditCategorySubSerializer(many=True, read_only=True)
+    m_credit_category_subs = CreditCategorySubSerializer(many=True)
 
     class Meta:
         model = MCreditCategoryMain
         fields = ('id', 'name', 'm_credit_category_subs')
+
+    def create(self, validated_data):
+        m_credit_category_subs_data = validated_data.pop('m_credit_category_subs')
+        m_credit_category_main = MCreditCategoryMain.objects.create(**validated_data)
+        for m_credit_category_sub_data in m_credit_category_subs_data:
+            MCreditCategorySub.objects.create(m_credit_category_main=m_credit_category_main,
+                                              **m_credit_category_sub_data)
+        return m_credit_category_main
 
 
 class CreditSerializer(serializers.ModelSerializer):

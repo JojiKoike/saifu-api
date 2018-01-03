@@ -6,15 +6,6 @@ from ..models.transaction.credit import TCredit
 from ..serializers.credit import CreditSerializer
 
 
-class IncomeCategoryMainSerializer(serializers.ModelSerializer):
-    """
-    Income Category Sub Serializer
-    """
-    class Meta:
-        model = MIncomeCategoryMain
-        fields = ('id', 'name')
-
-
 class IncomeCategorySubSerializer(serializers.ModelSerializer):
     """
     Income Category Sub Serializer
@@ -28,11 +19,19 @@ class IncomeCategorySerializer(serializers.ModelSerializer):
     """
     Income Category Serializer (Main and Sub)
     """
-    m_income_category_subs = IncomeCategorySubSerializer(many=True, read_only=True)
+    m_income_category_subs = IncomeCategorySubSerializer(many=True)
 
     class Meta:
         model = MIncomeCategoryMain
         fields = ('id', 'name', "m_income_category_subs")
+
+    def create(self, validated_data):
+        income_category_subs_data = validated_data.pop('m_income_category_subs')
+        m_income_category_main = MIncomeCategoryMain.objects.craete(**validated_data)
+        for income_category_sub_data in income_category_subs_data:
+            MIncomeCategorySub.objects.create(m_income_category_main=m_income_category_main,
+                                              **income_category_sub_data)
+        return m_income_category_main
 
 
 class IncomeDetailSerializer(serializers.ModelSerializer):
