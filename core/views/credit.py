@@ -1,44 +1,25 @@
-from rest_framework import generics
-from ..models.master.credit import MCreditCategoryMain, MCreditCategorySub
-from ..serializers.credit import CreditCategorySerializer, \
-    CreditCategoryMainSerializer, CreditCategorySubSerializer
+from .base import viewbase
+from ..models.master.credit import MCreditCategoryMain
+from ..models.transaction.credit import TCredit
+from ..serializers.credit import CreditCategorySerializer, CreditSerializer
 
 
-class CreditCategoryList(generics.ListAPIView):
+class CreditCategoryViewSet(viewbase.AdminEditableViewSetBase):
     """
-    Credit Category List View (Full Tree Structure)
+    A ViewSet for Credit Category List
     """
     queryset = MCreditCategoryMain.objects.all()
     serializer_class = CreditCategorySerializer
 
 
-class CreditCategoryMainList(generics.ListCreateAPIView):
+class CreditViewSet(viewbase.IsOwnerOnlyViewSetBase):
     """
-    Credit Category Main ListView
+    A ViewSet for Credit
     """
-    queryset = MCreditCategoryMain.objects.all()
-    serializer_class = CreditCategoryMainSerializer
+    serializer_class = CreditSerializer
 
+    def get_queryset(self):
+        return TCredit.objects.filter(owner=self.request.user)
 
-class CreditCategoryMainDetail(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Credit Category Main Detail
-    """
-    queryset = MCreditCategoryMain.objects.all()
-    serializer_class = CreditCategoryMainSerializer
-
-
-class CreditCategorySubList(generics.ListCreateAPIView):
-    """
-    Credit Category Sub ListView
-    """
-    queryset = MCreditCategorySub.objects.all()
-    serializer_class = CreditCategorySubSerializer
-
-
-class CreditCategorySubDetail(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Credit Category Sub Detail
-    """
-    queryset = MCreditCategorySub.objects.all()
-    serializer_class = CreditCategorySubSerializer
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

@@ -37,11 +37,11 @@ class ExpenseDetailSerializer(serializers.ModelSerializer):
     """
     Expense Detail Serializer
     """
-    u_saifu = serializers.UUIDField(required=True, write_only=True)
+    u_saifu = serializers.UUIDField(required=True)
 
     class Meta:
         model = TExpenseDetail
-        fields = ('id', 'amount', 'm_expense_category_sub', 'u_saifu', 'owner')
+        fields = ('id', 'amount', 'm_expense_category_sub', 'u_saifu')
 
 
 class ExpenseSerializer(serializers.ModelSerializer):
@@ -60,8 +60,28 @@ class ExpenseSerializer(serializers.ModelSerializer):
         :param validated_data: Expense, ExpenseDetails
         :return: Expense
         """
+
+        # TODO Implement Atomic
+
+        """
+        Step 1 : Create Parent Expense Record
+        """
         expense_details_data = validated_data.pop('t_expense_details')
         expense = TExpense.objects.create(**validated_data)
+
+        """
+        Step 2 : Get Owner Data
+        """
+        owner = validated_data.pop('owner')
+
+        """
+        Step 3 : Create Owner's Saifu List
+        """
+        u_saifu_query_set = USaifu.objects.filter(owner=owner)
+
+        """
+        Step 4 : Record Each Expense Detail 
+        """
         for expense_detail_data in expense_details_data:
             """
             Step 2-1 : Get Each Expense detail amount
@@ -71,14 +91,14 @@ class ExpenseSerializer(serializers.ModelSerializer):
             """
             Step 2-2 : Update Saifu Current Balance
             """
-            u_saifu = USaifu.objects.get(pk=expense_detail_data.pop('u_saifu'))
-            u_saifu.currentBalance -= expense_amount
+            u_saifu = u_saifu_query_set.get(pk=expense_detail_data.pop('u_saifu'))
+            u_saifu.current_balance -= expense_amount
             u_saifu.save()
 
             """
             Step 2-3 : Create Expense Detail records
             """
             TExpenseDetail.objects.create(t_expense=expense, u_saifu=u_saifu,
-                                          amount=expense_amount, **expense_detail_data)
+                                          amount=expense_amount, owner=owner, **expense_detail_data)
 
         return expense

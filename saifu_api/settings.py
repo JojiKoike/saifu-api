@@ -140,16 +140,26 @@ STATICFILES_DIRS = (
 )
 
 # DRF configuration
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    )
+if DEBUG:
+    REST_FRAMEWORK = {
+        'DEFAULT_AUTHENTICATION_CLASSES': (
+            'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+            'rest_framework.authentication.SessionAuthentication',
+        ),
+        'DEFAULT_PERMISSION_CLASSES': (
+            'rest_framework.permissions.IsAuthenticated',
+        )
+    }
+else:
+    REST_FRAMEWORK = {
+        'DEFAULT_AUTHENTICATION_CLASSES': (
+            'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        ),
+        'DEFAULT_PERMISSION_CLASSES': (
+            'rest_framework.permissions.IsAuthenticated',
+        )
+    }
 
-}
 
 # Djoser configuration
 DJOSER = {

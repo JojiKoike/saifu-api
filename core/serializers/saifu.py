@@ -17,4 +17,4 @@ class SaifuSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = USaifu
-        fields = ('id', 'name', 'current_balance', 'm_saifu_category', 'owner')
+        fields = ('id', 'name', 'current_balance', 'm_saifu_category')
