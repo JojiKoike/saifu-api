@@ -1,16 +1,8 @@
 from rest_framework import serializers
+from django.db import transaction
 from ..models.master.expense import MExpenseCategoryMain, MExpenseCategorySub
 from ..models.transaction.expense import TExpense, TExpenseDetail
 from core.models.user.saifu import USaifu
-
-
-class ExpenseCategoryMainSerializer(serializers.ModelSerializer):
-    """
-    Expense Category Main Serializer
-    """
-    class Meta:
-        model = MExpenseCategoryMain
-        fields = ('id', 'name')
 
 
 class ExpenseCategorySubSerializer(serializers.ModelSerializer):
@@ -26,11 +18,20 @@ class ExpenseCategorySerializer(serializers.ModelSerializer):
     """
     Expense Category (Main & Sub) Serializer
     """
-    m_expense_category_subs = ExpenseCategorySubSerializer(many=True, read_only=True)
+    m_expense_category_subs = ExpenseCategorySubSerializer(many=True)
 
     class Meta:
         model = MExpenseCategoryMain
         fields = ('id', 'name', 'm_expense_category_subs')
+
+    @transaction.atomic
+    def create(self, validated_data):
+        m_expense_category_subs_data = validated_data.pop('m_expense_category_subs')
+        m_expense_category_main = MExpenseCategoryMain.objects.create(**validated_data)
+        for m_expense_category_sub_data in m_expense_category_subs_data:
+            MExpenseCategorySub.objects.create(m_expense_category_main=m_expense_category_main,
+                                               **m_expense_category_sub_data)
+        return m_expense_category_main
 
 
 class ExpenseDetailSerializer(serializers.ModelSerializer):
@@ -54,14 +55,13 @@ class ExpenseSerializer(serializers.ModelSerializer):
         model = TExpense
         fields = ('id', 'payment_recipient_name', 'expense_date', 'note', 't_expense_details')
 
+    @transaction.atomic
     def create(self, validated_data):
         """
         Record Expense
         :param validated_data: Expense, ExpenseDetails
         :return: Expense
         """
-
-        # TODO Implement Atomic
 
         """
         Step 1 : Create Parent Expense Record

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import transaction
 from ..models.transaction.transfer import TTransferBetweenSaifu
 from core.models.user.saifu import USaifu
 
@@ -13,6 +14,7 @@ class TransferBetweenSaifuSerializer(serializers.ModelSerializer):
         model = TTransferBetweenSaifu
         fields = ('id', 'transfer_date', 'amount', 'note', 'from_u_saifu', 'to_u_saifu')
 
+    @transaction.atomic
     def create(self, validated_data):
         """
         Create Transfer Between Saifu Record
