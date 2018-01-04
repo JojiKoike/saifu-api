@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import transaction
 from ..models.master.income import MIncomeCategoryMain, MIncomeCategorySub
 from core.models.user.saifu import USaifu
 from ..models.transaction.income import TIncome, TIncomeDetail
@@ -25,6 +26,7 @@ class IncomeCategorySerializer(serializers.ModelSerializer):
         model = MIncomeCategoryMain
         fields = ('id', 'name', "m_income_category_subs")
 
+    @transaction.atomic
     def create(self, validated_data):
         income_category_subs_data = validated_data.pop('m_income_category_subs')
         m_income_category_main = MIncomeCategoryMain.objects.craete(**validated_data)
@@ -56,6 +58,7 @@ class IncomeSerializer(serializers.ModelSerializer):
         model = TIncome
         fields = ('id', 'payment_source_name', 'income_date', 'note', 't_income_details', 't_credits')
 
+    @transaction.atomic
     def create(self, validated_data):
         """
         Create Income Record
