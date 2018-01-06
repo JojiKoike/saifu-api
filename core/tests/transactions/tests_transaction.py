@@ -2,6 +2,7 @@ from django.test import TestCase
 from core.models.master.income import *
 from core.models.master.expense import *
 from core.models.master.credit import *
+from core.models.master.saifu import *
 from core.models.transaction.income import *
 from core.models.transaction.expense import *
 from core.models.transaction.transfer import *
@@ -47,7 +48,8 @@ class TIncomeDetailTests(TestCase):
     expense_amount = None
     m_expense_category_main = None
     m_expense_category_sub = None
-    m_saifu_category = None
+    m_saifu_category_main = None
+    m_saifu_category_sub = None
     u_saifu = None
     income_amount = None
 
@@ -58,9 +60,11 @@ class TIncomeDetailTests(TestCase):
         self.m_income_category_main = MIncomeCategoryMain.objects.create(name="給与収入")
         self.m_income_category_sub = MIncomeCategorySub. \
             objects.create(name="通常給与", m_income_category_main=self.m_income_category_main)
-        self.m_saifu_category = MSaifuCategory.objects.create(name="銀行口座")
+        self.m_saifu_category_main = MSaifuCategoryMain.objects.create(name="銀行口座")
+        self.m_saifu_category_sub = MSaifuCategorySub.objects.create(name="普通預金",
+                                                                     m_saifu_category_main=self.m_saifu_category_main)
         self.u_saifu = USaifu.objects.create(name="スイス銀行",
-                                             current_balance=10000000, m_saifu_category=self.m_saifu_category,
+                                             current_balance=10000000, m_saifu_category_sub=self.m_saifu_category_sub,
                                              owner=self.owner)
 
     def test_IncomeDetail_Saved_Correctly(self):
@@ -108,7 +112,8 @@ class TExpenseDetailTests(TestCase):
     expense_amount = None
     m_expense_category_main = None
     m_expense_category_sub = None
-    m_saifu_category = None
+    m_saifu_category_main = None
+    m_saifu_category_sub = None
     u_saifu = None
 
     def setUp(self):
@@ -118,9 +123,11 @@ class TExpenseDetailTests(TestCase):
         self.m_expense_category_main = MExpenseCategoryMain.objects.create(name="食費")
         self.m_expense_category_sub = MExpenseCategorySub.\
             objects.create(name="外食",  m_expense_category_main=self.m_expense_category_main)
-        self.m_saifu_category = MSaifuCategory.objects.create(name="クレジットカード")
+        self.m_saifu_category_main = MSaifuCategoryMain.objects.create(name="クレジットカード")
+        self.m_saifu_category_sub = MSaifuCategorySub.objects.create(name="クレジットカード",
+                                                                     m_saifu_category_main=self.m_saifu_category_main)
         self.u_saifu = USaifu.objects.create(name="VISA",
-                                             current_balance=10000000, m_saifu_category=self.m_saifu_category,
+                                             current_balance=10000000, m_saifu_category_sub=self.m_saifu_category_sub,
                                              owner=self.owner)
 
     def test_ExpenseDetail_Saved_Correctly(self):
@@ -146,20 +153,26 @@ class TTransferBetweenSaifuTests(TestCase):
     """
     Transfer Between Saifu Transaction Tests
     """
-    fromSaifuCategory = None
-    toSaifuCategory = None
+    fromSaifuCategoryMain = None
+    fromSaifuCategorySub = None
+    toSaifuCategoryMain = None
+    toSaifuCategorySub = None
     fromSaifu = None
     toSaifu = None
     owner = None
     
     def setUp(self):
         self.owner = User.objects.create_user("TestUser", 'test@test.com', 'password')
-        self.fromSaifuCategory = MSaifuCategory.objects.create(name="クレジットカード")
+        self.fromSaifuCategoryMain = MSaifuCategoryMain.objects.create(name="クレジットカード")
+        self.fromSaifuCategorySub = MSaifuCategorySub.objects.create(name="クレジットカード",
+                                                                     m_saifu_category_main=self.fromSaifuCategoryMain)
         self.fromSaifu = USaifu.objects.create(name="JCB", current_balance=-100000,
-                                               m_saifu_category=self.fromSaifuCategory, owner=self.owner)
-        self.toSaifuCategory = MSaifuCategory.objects.create(name="電子マネー")
+                                               m_saifu_category_sub=self.fromSaifuCategorySub, owner=self.owner)
+        self.toSaifuCategoryMain = MSaifuCategoryMain.objects.create(name="電子マネー")
+        self.toSaifuCategorySub = MSaifuCategorySub.objects.create(name="交通系ICカード",
+                                                                   m_saifu_category_main=self.toSaifuCategoryMain)
         self.toSaifu = USaifu.objects.create(name="Suica", current_balance=3000,
-                                             m_saifu_category=self.toSaifuCategory, owner=self.owner)
+                                             m_saifu_category_sub=self.toSaifuCategorySub, owner=self.owner)
         
     def test_TransferBetweenSaifu_Saved_Correctly(self):
         transferamount = 5000
