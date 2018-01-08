@@ -1,16 +1,16 @@
 from rest_framework import serializers
-from django.db import transaction
 from core.models.master.saifu import MSaifuCategoryMain, MSaifuCategorySub
 from core.models.user.saifu import USaifu
 
 
 class SaifuCategorySubSerializer(serializers.ModelSerializer):
+    m_saifu_category_main = serializers.UUIDField(read_only=True)
     """
     Saifu Category Sub Serializer
     """
     class Meta:
         model = MSaifuCategorySub
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'm_saifu_category_main')
 
 
 class SaifuCategorySerializer(serializers.ModelSerializer):

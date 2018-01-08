@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.db import transaction
 from ..models.master.income import MIncomeCategoryMain, MIncomeCategorySub
 from core.models.user.saifu import USaifu
 from ..models.transaction.income import TIncome, TIncomeDetail
@@ -8,6 +7,7 @@ from ..serializers.credit import CreditSerializer
 
 
 class IncomeCategorySubSerializer(serializers.ModelSerializer):
+    m_income_category_main = serializers.UUIDField(read_only=True)
     """
     Income Category Sub Serializer
     """
@@ -26,10 +26,9 @@ class IncomeCategorySerializer(serializers.ModelSerializer):
         model = MIncomeCategoryMain
         fields = ('id', 'name', "m_income_category_subs")
 
-    @transaction.atomic
     def create(self, validated_data):
         income_category_subs_data = validated_data.pop('m_income_category_subs')
-        m_income_category_main = MIncomeCategoryMain.objects.craete(**validated_data)
+        m_income_category_main = MIncomeCategoryMain.objects.create(**validated_data)
         for income_category_sub_data in income_category_subs_data:
             MIncomeCategorySub.objects.create(m_income_category_main=m_income_category_main,
                                               **income_category_sub_data)
@@ -58,7 +57,6 @@ class IncomeSerializer(serializers.ModelSerializer):
         model = TIncome
         fields = ('id', 'payment_source_name', 'income_date', 'note', 't_income_details', 't_credits')
 
-    @transaction.atomic
     def create(self, validated_data):
         """
         Create Income Record
@@ -94,21 +92,19 @@ class IncomeSerializer(serializers.ModelSerializer):
             """
             Step.2-2 : Update Saifu current balance
             """
-            u_saifu = u_saifu_query_set.get(pk=income_detail_data.pop('m_saifu'))
-            u_saifu.currentBalance += income_amount
+            u_saifu = u_saifu_query_set.get(pk=income_detail_data.pop('u_saifu'))
+            u_saifu.current_balance += income_amount
             u_saifu.save()
             """
             Step.2-3 : Create Income Detail records
             """
-            TIncomeDetail.objects.create(t_income=income, m_saifu=u_saifu,
+            TIncomeDetail.objects.create(t_income=income, u_saifu=u_saifu,
                                          amount=income_amount, owner=owner, **income_detail_data)
 
         """
         Step 5 : Create Credit records
         """
         for credit_data in credits_data:
-            TCredit.objects.create(tIncome=income, owner=owner, **credit_data)
+            TCredit.objects.create(t_income=income, owner=owner, **credit_data)
 
         return income
-
-

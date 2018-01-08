@@ -30,13 +30,13 @@ class TransferBetweenSaifuSerializer(serializers.ModelSerializer):
         Update From Saifu Current Balance
         """
         from_u_saifu = u_saifu_query_set.get(pk=validated_data.pop('from_u_saifu'))
-        from_u_saifu.currentBalance -= transfer_amount
+        from_u_saifu.current_balance -= transfer_amount
         from_u_saifu.save()
         """
         Update To Saifu Current Balance
         """
         to_u_saifu = u_saifu_query_set.get(pk=validated_data.pop('to_u_saifu'))
-        to_u_saifu.currentBalance += transfer_amount
+        to_u_saifu.current_balance += transfer_amount
         to_u_saifu.save()
         """
         Create Transfer Between Saifu Transaction Record

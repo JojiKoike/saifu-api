@@ -8,6 +8,8 @@ class CreditCategorySubSerializer(serializers.ModelSerializer):
     """
     Credit Category (Sub) Serializer
     """
+    m_credit_category_main = serializers.UUIDField(read_only=True)
+
     class Meta:
         model = MCreditCategorySub
         fields = ('id', 'name', 'm_credit_category_main')

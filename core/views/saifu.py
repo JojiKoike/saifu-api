@@ -19,8 +19,11 @@ class SaifuCategoryViewSet(viewbase.AdminEditableViewSetBase):
         serializer = SaifuCategorySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # TODO Implement update, partial_update, destroy
 
 
 class SaifuViewSet(viewbase.IsOwnerOnlyViewSetBase):
@@ -34,3 +37,5 @@ class SaifuViewSet(viewbase.IsOwnerOnlyViewSetBase):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    # TODO Implement update, partial_update, destroy
