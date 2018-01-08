@@ -2,6 +2,7 @@ from django.test import TestCase
 from core.models.master.income import *
 from core.models.master.expense import *
 from core.models.master.credit import *
+from core.models.master.saifu import *
 from core.models.user.saifu import *
 from django.contrib.auth.models import User
 
@@ -89,21 +90,29 @@ class MCreditCategorySubTests(TestCase):
         self.assertEqual(m_credit_category_sub.m_credit_category_main.name, "社会保険料")
 
 
-class MSaifuCategoryTests(TestCase):
+class MSaifuCategoryMainTests(TestCase):
     """
-    Saifu Category Master Tests
+    Saifu Category Main Master Tests
     """
-
-    def setUp(self):
-        MSaifuCategory.objects.create(name="銀行口座")
 
     def test_MSaifuName_Saved_Correctly(self):
-        mSaifuCategory = MSaifuCategory.objects.get(name="銀行口座")
-        self.assertEqual(mSaifuCategory.name, "銀行口座")
+        m_saifu_category_main = MSaifuCategoryMain.objects.create(name="銀行口座")
+        self.assertEqual(m_saifu_category_main.name, "銀行口座")
 
-        """
-        TODO 名称重複登録をはねる事をテスト
-        """
+
+class MSaifuCategorySubTests(TestCase):
+    """
+    Saifu Category Sub Master Tests
+    """
+    m_saifu_category_main = None
+
+    def setUp(self):
+        self.m_saifu_category_main = MSaifuCategoryMain.objects.create(name="銀行口座")
+
+    def test_MSaifuCategorySub_Name_Saved_Correctly(self):
+        m_saifu_category_sub = MSaifuCategorySub.objects.create(name="普通口座",
+                                                                m_saifu_category_main=self.m_saifu_category_main)
+        self.assertEqual(m_saifu_category_sub.name, "普通口座")
 
 
 class MSaifuTests(TestCase):
@@ -112,15 +121,18 @@ class MSaifuTests(TestCase):
     """
 
     owner = None
-    m_saifu_category = None
+    m_saifu_category_main = None
+    m_saifu_category_sub = None
 
     def setUp(self):
         self.owner = User.objects.create_user("TestUser", 'test@test.com', 'password')
-        self.m_saifu_category = MSaifuCategory.objects.create(name='電子マネー')
+        self.m_saifu_category_main = MSaifuCategoryMain.objects.create(name='銀行口座')
+        self.m_saifu_category_sub = MSaifuCategorySub.objects.create(name='普通預金',
+                                                                     m_saifu_category_main=self.m_saifu_category_main)
 
     def test_MSaifu_Saved_Correctly(self):
         u_saifu = USaifu.objects.create(name="Suica", current_balance=5000,
-                                        m_saifu_category=self.m_saifu_category, owner=self.owner)
+                                        m_saifu_category_sub=self.m_saifu_category_sub, owner=self.owner)
         self.assertEqual(u_saifu.name, "Suica")
         self.assertEqual(u_saifu.current_balance, 5000)
-        self.assertEqual(u_saifu.m_saifu_category.name, "電子マネー")
+        self.assertEqual(u_saifu.m_saifu_category_sub.name, "普通預金")

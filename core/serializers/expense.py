@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from django.db import transaction
 from ..models.master.expense import MExpenseCategoryMain, MExpenseCategorySub
 from ..models.transaction.expense import TExpense, TExpenseDetail
 from core.models.user.saifu import USaifu
 
 
 class ExpenseCategorySubSerializer(serializers.ModelSerializer):
+    m_expense_category_main=serializers.UUIDField(read_only=True)
     """
     Expense Category Sub Serializer
     """
@@ -24,7 +24,6 @@ class ExpenseCategorySerializer(serializers.ModelSerializer):
         model = MExpenseCategoryMain
         fields = ('id', 'name', 'm_expense_category_subs')
 
-    @transaction.atomic
     def create(self, validated_data):
         m_expense_category_subs_data = validated_data.pop('m_expense_category_subs')
         m_expense_category_main = MExpenseCategoryMain.objects.create(**validated_data)
@@ -55,7 +54,6 @@ class ExpenseSerializer(serializers.ModelSerializer):
         model = TExpense
         fields = ('id', 'payment_recipient_name', 'expense_date', 'note', 't_expense_details')
 
-    @transaction.atomic
     def create(self, validated_data):
         """
         Record Expense
