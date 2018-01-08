@@ -14,7 +14,6 @@ class TransferBetweenSaifuSerializer(serializers.ModelSerializer):
         model = TTransferBetweenSaifu
         fields = ('id', 'transfer_date', 'amount', 'note', 'from_u_saifu', 'to_u_saifu')
 
-    @transaction.atomic
     def create(self, validated_data):
         """
         Create Transfer Between Saifu Record

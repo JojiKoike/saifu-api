@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.db import transaction
 from ..models.master.credit import MCreditCategoryMain, MCreditCategorySub
 from ..models.transaction.credit import TCredit
 
@@ -25,7 +24,6 @@ class CreditCategorySerializer(serializers.ModelSerializer):
         model = MCreditCategoryMain
         fields = ('id', 'name', 'm_credit_category_subs')
 
-    @transaction.atomic
     def create(self, validated_data):
         m_credit_category_subs_data = validated_data.pop('m_credit_category_subs')
         m_credit_category_main = MCreditCategoryMain.objects.create(**validated_data)
