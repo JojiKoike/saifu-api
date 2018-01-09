@@ -4,6 +4,7 @@ from core.models.master.expense import *
 from core.models.master.credit import *
 from core.models.master.saifu import *
 from core.models.user.saifu import *
+from core.models.master.asset import *
 from django.contrib.auth.models import User
 
 
@@ -136,3 +137,29 @@ class MSaifuTests(TestCase):
         self.assertEqual(u_saifu.name, "Suica")
         self.assertEqual(u_saifu.current_balance, 5000)
         self.assertEqual(u_saifu.m_saifu_category_sub.name, "普通預金")
+
+
+class MAssetCategoryMainTests(TestCase):
+    """
+    Asset Category Main Master Tests
+    """
+
+    def test_MAssetCategoryMain_Saved_Correctly(self):
+        m_asset_category_main = MAssetCategoryMain.objects.create(name="個人年金")
+        self.assertEqual(m_asset_category_main.name, '個人年金')
+
+
+class MAssetCategorySubTests(TestCase):
+    """
+    Asset Category Sub Master Tests
+    """
+    m_asset_category_main = None
+
+    def setUp(self):
+        self.m_asset_category_main = MAssetCategoryMain.objects.create(name="個人年金")
+
+    def test_MAssetCategorySub_Saved_Correctly(self):
+        m_asset_category_sub = MAssetCategorySub.objects.create(name="個人型確定拠出年金",
+                                                                m_asset_category_main=self.m_asset_category_main)
+        self.assertEqual(m_asset_category_sub.name, "個人型確定拠出年金")
+        self.assertEqual(m_asset_category_sub.m_asset_category_main.name, "個人年金")
