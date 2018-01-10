@@ -31,6 +31,7 @@ class TransferBetweenSaifuSerializer(serializers.ModelSerializer):
         Update From Saifu Current Balance
         """
         from_u_saifu = u_saifu_query_set.get(pk=validated_data.pop('from_u_saifu'))
+        # TODO Validate transfer_amount <= current_balance
         from_u_saifu.current_balance -= transfer_amount
         from_u_saifu.save()
 
@@ -80,7 +81,8 @@ class TransferBetweenSaifuAndAssetSerializer(serializers.ModelSerializer):
         Update Saifu Current Balance
         """
         u_saifu = u_saifu_query_set.get(pk=validated_data.pop('u_saifu'))
-        u_saifu -= transfer_amount
+        u_saifu.current_balance -= transfer_amount
+        # TODO Validate transfer_amount <= current_evaluated_amount
         u_saifu.save()
 
         """

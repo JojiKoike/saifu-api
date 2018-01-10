@@ -44,7 +44,7 @@ class TransferBetweenSaifuAndAssetViewSet(viewbase.IsOwnerOnlyViewSetBase):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        serializer = TransferBetweenSaifuAndAssetSerializer(date=request.data)
+        serializer = TransferBetweenSaifuAndAssetSerializer(data=request.data)
         if serializer.is_valid():
             self.perform_create(serializer)
             headers = self.get_success_headers(data=serializer.data)
