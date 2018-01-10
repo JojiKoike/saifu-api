@@ -3,11 +3,14 @@ from core.models.master.income import *
 from core.models.master.expense import *
 from core.models.master.credit import *
 from core.models.master.saifu import *
+from core.models.master.asset import *
 from core.models.transaction.income import *
 from core.models.transaction.expense import *
 from core.models.transaction.transfer import *
 from core.models.transaction.credit import *
+from core.models.transaction.asset import *
 from core.models.user.saifu import *
+from core.models.user.asset import *
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
@@ -216,3 +219,106 @@ class TCreditTests(TestCase):
         self.assertEqual(tcredit.m_credit_category_sub.m_credit_category_main.name, "税金")
         self.assertEqual(tcredit.t_income.payment_source_name, "フリーメーソン")
         self.assertEqual(tcredit.t_income.income_date, "2017-12-18")
+
+
+class TTransferBetweenSaifuAndAssetTests(TestCase):
+    """
+    Transfer Between Saifu and Asset Tests
+    """
+    owner = None
+    m_saifu_category_main = None
+    m_saifu_category_sub = None
+    u_saifu = None
+    m_asset_category_main = None
+    m_asset_category_sub = None
+    u_asset = None
+
+    def setUp(self):
+        self.owner = User.objects.create_user("TestUser", 'test@test.com', 'password')
+        self.m_saifu_category_main = \
+            MSaifuCategoryMain.objects.create(name="銀行口座")
+        self.m_saifu_category_sub = \
+            MSaifuCategorySub.objects.create(name='普通口座',
+                                             m_saifu_category_main=self.m_saifu_category_main)
+        self.u_saifu = USaifu.objects.create(name='スイス銀行', current_balance=10000,
+                                             m_saifu_category_sub=self.m_saifu_category_sub,
+                                             owner=self.owner)
+        self.m_asset_category_main =\
+            MAssetCategoryMain.objects.create(name='年金資産')
+        self.m_asset_category_sub = \
+            MAssetCategorySub.objects.create(name='個人年金',
+                                             m_asset_category_main=self.m_asset_category_main)
+        self.u_asset = UAsset.objects.create(name='iDeCo',
+                                             current_capital_amount=10000,
+                                             current_evaluated_amount=20000,
+                                             m_asset_category_sub=self.m_asset_category_sub,
+                                             owner=self.owner)
+
+    def test_transfer_from_saifu_to_asset_correctly(self):
+        amount = 10000
+        t_transfer_between_saifu_and_asset = \
+            TTransferBetweenSaifuAndAsset.objects.create(transfer_date='2018-01-10',
+                                                         amount=amount, note='test',
+                                                         u_saifu=self.u_saifu,
+                                                         u_asset=self.u_asset,
+                                                         owner=self.owner)
+        self.u_saifu.current_balance -= amount
+        self.u_saifu.save()
+        self.u_asset.current_capital_amount += amount
+        self.u_asset.current_evaluated_amount += amount
+        self.u_asset.save()
+        self.assertEqual(self.u_saifu.current_balance, 0)
+        self.assertEqual(self.u_asset.current_capital_amount, 20000)
+        self.assertEqual(self.u_asset.current_evaluated_amount, 30000)
+        self.assertEqual(t_transfer_between_saifu_and_asset.amount, 10000)
+
+    def test_transfer_from_asset_to_saifu_correctly(self):
+        amount = -10000
+        t_transfer_between_saifu_and_asset = \
+            TTransferBetweenSaifuAndAsset.objects.create(transfer_date='2018-01-10',
+                                                         amount=amount, note='test',
+                                                         u_saifu=self.u_saifu,
+                                                         u_asset=self.u_asset,
+                                                         owner=self.owner)
+        self.u_saifu.current_balance -= amount
+        self.u_saifu.save()
+        self.u_asset.current_capital_amount += amount
+        self.u_asset.current_evaluated_amount += amount
+        self.u_asset.save()
+        self.assertEqual(self.u_saifu.current_balance, 20000)
+        self.assertEqual(self.u_asset.current_capital_amount, 0)
+        self.assertEqual(self.u_asset.current_evaluated_amount, 10000)
+        self.assertEqual(t_transfer_between_saifu_and_asset.amount, -10000)
+
+
+class TTAssetEvaluateTests(TestCase):
+    """
+    Asset Evaluate Tests
+    """
+    owner = None
+    m_asset_category_main = None
+    m_asset_category_sub = None
+    u_asset = None
+
+    def setUp(self):
+        self.owner = User.objects.create_user("TestUser", 'test@test.com', 'password')
+        self.m_asset_category_main = \
+            MAssetCategoryMain.objects.create(name='年金資産')
+        self.m_asset_category_sub = \
+            MAssetCategorySub.objects.create(name='個人年金',
+                                             m_asset_category_main=self.m_asset_category_main)
+        self.u_asset = UAsset.objects.create(name='iDeCo',
+                                             current_capital_amount=10000,
+                                             current_evaluated_amount=20000,
+                                             m_asset_category_sub=self.m_asset_category_sub,
+                                             owner=self.owner)
+
+    def test_asset_evaluate_Correctly(self):
+        evaluated_amount = 30000
+        t_asset_evaluate = TAssetEvaluate.objects.create(evaluate_date='2018-01-10',
+                                                         evaluated_amount=evaluated_amount, note='Test',
+                                                         u_asset=self.u_asset, owner=self.owner)
+        self.u_asset.current_evaluated_amount = evaluated_amount
+        self.u_asset.save()
+        self.assertEqual(t_asset_evaluate.evaluated_amount, evaluated_amount)
+        self.assertEqual(self.u_asset.current_evaluated_amount, evaluated_amount)

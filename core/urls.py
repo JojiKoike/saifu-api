@@ -5,7 +5,8 @@ from core.views.saifu import SaifuCategoryViewSet, SaifuViewSet
 from core.views.credit import CreditCategoryViewSet
 from core.views.income import IncomeCategoryViewSet, IncomeViewSet
 from core.views.expense import ExpenseCategoryViewSet, ExpenseViewSet
-from core.views.transfer import TransferBetweenSaifuViewSet
+from core.views.transfer import TransferBetweenSaifuViewSet, TransferBetweenSaifuAndAssetViewSet
+from core.views.asset import AssetCategoryViewSet, AssetViewSet, AssetEvaluateViewSet
 
 """
 Swagger url configuration
@@ -27,5 +28,11 @@ router.register(r'income', IncomeViewSet, base_name='income')
 router.register(r'expense_category', ExpenseCategoryViewSet)
 router.register(r'expense', ExpenseViewSet, base_name='expense')
 router.register(r'credit_category', CreditCategoryViewSet)
-router.register(r'transfer_between_saifu', TransferBetweenSaifuViewSet, base_name='transfer_between_saifu')
+router.register(r'transfer_between_saifu', TransferBetweenSaifuViewSet,
+                base_name='transfer_between_saifu')
+router.register(r'transfer_between_saifu_and_asset', TransferBetweenSaifuAndAssetViewSet,
+                base_name='transfer_between_saifu_and_asset')
+router.register(r'asset', AssetViewSet, base_name='asset')
+router.register(r'asset_category', AssetCategoryViewSet)
+router.register(r'asset_evaluate', AssetEvaluateViewSet, base_name='asset_evaluate')
 urlpatterns += router.urls
