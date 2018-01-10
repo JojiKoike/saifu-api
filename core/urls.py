@@ -6,7 +6,7 @@ from core.views.credit import CreditCategoryViewSet
 from core.views.income import IncomeCategoryViewSet, IncomeViewSet
 from core.views.expense import ExpenseCategoryViewSet, ExpenseViewSet
 from core.views.transfer import TransferBetweenSaifuViewSet, TransferBetweenSaifuAndAssetViewSet
-from core.views.asset import AssetCategoryViewSet, AssetEvaluateSerializer
+from core.views.asset import AssetCategoryViewSet,AssetViewSet, AssetEvaluateSerializer
 
 """
 Swagger url configuration
@@ -32,5 +32,6 @@ router.register(r'transfer_between_saifu', TransferBetweenSaifuViewSet,
                 base_name='transfer_between_saifu')
 router.register(r'transfer_between_saifu_and_asset', TransferBetweenSaifuAndAssetViewSet,
                 base_name='transfer_between_saifu_and_asset')
+router.register(r'asset', AssetViewSet, base_name='asset')
 router.register(r'asset_category', AssetCategoryViewSet)
 urlpatterns += router.urls

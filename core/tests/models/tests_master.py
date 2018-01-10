@@ -116,29 +116,6 @@ class MSaifuCategorySubTests(TestCase):
         self.assertEqual(m_saifu_category_sub.name, "普通口座")
 
 
-class MSaifuTests(TestCase):
-    """
-    Saifu Master Tests
-    """
-
-    owner = None
-    m_saifu_category_main = None
-    m_saifu_category_sub = None
-
-    def setUp(self):
-        self.owner = User.objects.create_user("TestUser", 'test@test.com', 'password')
-        self.m_saifu_category_main = MSaifuCategoryMain.objects.create(name='銀行口座')
-        self.m_saifu_category_sub = MSaifuCategorySub.objects.create(name='普通預金',
-                                                                     m_saifu_category_main=self.m_saifu_category_main)
-
-    def test_MSaifu_Saved_Correctly(self):
-        u_saifu = USaifu.objects.create(name="Suica", current_balance=5000,
-                                        m_saifu_category_sub=self.m_saifu_category_sub, owner=self.owner)
-        self.assertEqual(u_saifu.name, "Suica")
-        self.assertEqual(u_saifu.current_balance, 5000)
-        self.assertEqual(u_saifu.m_saifu_category_sub.name, "普通預金")
-
-
 class MAssetCategoryMainTests(TestCase):
     """
     Asset Category Main Master Tests
