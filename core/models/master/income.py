@@ -6,7 +6,7 @@ class MIncomeCategoryMain(MasterBase):
     """
     Income Category Master (Main)
     """
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=10, unique=True)
 
 
 class MIncomeCategorySub(MasterBase):

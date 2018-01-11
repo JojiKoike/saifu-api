@@ -6,7 +6,7 @@ class MSaifuCategoryMain(MasterBase):
     """
     Saifu Category Master (Main)
     """
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=10, unique=True)
 
 
 class MSaifuCategorySub(MasterBase):
