@@ -1,5 +1,6 @@
 from .base.mastarbase import MasterBase
 from .base.transactionbase import TransactionBase
+from .base.userbase import UserBase
 from .user.saifu import USaifu
 from .user.asset import UAsset
 from .user.debt import UDebt
