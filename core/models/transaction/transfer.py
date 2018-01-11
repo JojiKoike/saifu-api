@@ -2,6 +2,7 @@ from django.db import models
 from ..base.transactionbase import TransactionBase
 from core.models.user.saifu import USaifu
 from core.models.user.asset import UAsset
+from core.models.user.debt import UDebt
 
 
 class TTransferBetweenSaifu(TransactionBase):
@@ -24,7 +25,20 @@ class TTransferBetweenSaifuAndAsset(TransactionBase):
     transfer_date = models.DateField()
     amount = models.BigIntegerField()
     note = models.TextField()
-    u_saifu = models.ForeignKey(USaifu, on_delete=models.CASCADE, related_name='u_saifu')
-    u_asset = models.ForeignKey(UAsset, on_delete=models.CASCADE, related_name='u_asset')
+    u_saifu = models.ForeignKey(USaifu, on_delete=models.CASCADE, related_name='u_saifu_u_asset')
+    u_asset = models.ForeignKey(UAsset, on_delete=models.CASCADE, related_name='u_asset_u_saifu')
     owner = models.ForeignKey('auth.User',
                               related_name='t_transfer_between_saifu_and_assets', on_delete=models.CASCADE)
+
+
+class TTransferBetweenSaifuAndDebt(TransactionBase):
+    """
+    Transfer Between Saifu And Debt Model
+    """
+    transfer_date = models.DateField()
+    amount = models.BigIntegerField()
+    note = models.TextField()
+    u_saifu = models.ForeignKey(USaifu, on_delete=models.CASCADE, related_name='u_saifu_u_debt')
+    u_debt = models.ForeignKey(UDebt, on_delete=models.CASCADE, related_name='u_debt_u_saifu')
+    owner = models.ForeignKey('auth.User',
+                              related_name='t_transfer_between_saifu_and_debts', on_delete=models.CASCADE)
