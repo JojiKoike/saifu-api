@@ -92,9 +92,7 @@ class TransferBetweenSaifuAndAssetSerializer(serializers.ModelSerializer):
         Update Asset Current Capital Amount and Current Evaluated Amount
         """
         u_asset = u_asset_query_set.get(pk=validated_data.pop('u_asset'))
-        u_asset.current_capital_amount += transfer_amount
-        if u_asset.current_capital_amount < 0:
-            u_asset.current_capital_amount = 0
+        u_asset.current_capital_amount += (transfer_amount if transfer_amount > 0 else 0)
         u_asset.current_evaluated_amount += transfer_amount
         u_asset.save()
 
@@ -157,9 +155,7 @@ class TransferBetweenSaifuAndDebtSerializer(serializers.ModelSerializer):
         Update Debt Current Principal Amount and Current Gained Amount
         """
         u_debt = u_debt_query_set.get(pk=validated_data.pop('u_debt'))
-        u_debt.current_principal_amount -= transfer_amount
-        if u_debt.current_principal_amount < 0:
-            u_debt.current_principal_amount = 0
+        u_debt.current_principal_amount -= (transfer_amount if transfer_amount < 0 else 0)
         u_debt.current_gained_amount -= transfer_amount
         u_debt.save()
 

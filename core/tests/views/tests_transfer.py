@@ -53,7 +53,7 @@ class TransferBetweenSaifuAndAssetViewSetTests(APITestCase):
         self.assertEqual(updated_u_asset.current_capital_amount, 20000)
         self.assertEqual(updated_u_asset.current_evaluated_amount, 30000)
 
-    def test_transfer_from_asset_to_saifu_under_current_capital_amount_Correctly(self):
+    def test_transfer_from_asset_to_saifu_Correctly(self):
         amount = -10000
         input_data = {
             'transfer_date': '2017-01-10',
@@ -68,24 +68,5 @@ class TransferBetweenSaifuAndAssetViewSetTests(APITestCase):
         updated_u_saifu = USaifu.objects.get(pk=self.u_saifu.id)
         self.assertEqual(updated_u_saifu.current_balance, 20000)
         updated_u_asset = UAsset.objects.get(pk=self.u_asset.id)
-        self.assertEqual(updated_u_asset.current_capital_amount, 0)
+        self.assertEqual(updated_u_asset.current_capital_amount, 10000)
         self.assertEqual(updated_u_asset.current_evaluated_amount, 10000)
-
-    def test_transfer_from_asset_to_saifu_over_current_capital_amount_Correctly(self):
-        amount = -10001
-        input_data = {
-            'transfer_date': '2017-01-10',
-            'amount': amount,
-            'note': 'Test',
-            'u_saifu': self.u_saifu.id,
-            'u_asset': self.u_asset.id
-        }
-        post_response = self.client.post('/transfer_between_saifu_and_asset/', input_data, format='json',
-                                         HTTP_AUTHORIZATION='JWT {}'.format(self.jwt_token))
-        self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
-        updated_u_saifu = USaifu.objects.get(pk=self.u_saifu.id)
-        self.assertEqual(updated_u_saifu.current_balance, 20001)
-        updated_u_asset = UAsset.objects.get(pk=self.u_asset.id)
-        self.assertEqual(updated_u_asset.current_capital_amount, 0)
-        self.assertEqual(updated_u_asset.current_evaluated_amount, 9999)
-
