@@ -99,6 +99,3 @@ class AssetEvaluateViewSetTests(APITestCase):
                                                           'evaluated_amount', 'note', 'u_asset'})
         updated_u_asset = UAsset.objects.get(pk=self.u_asset.id)
         self.assertEqual(updated_u_asset.current_evaluated_amount, self.evaluated_amount)
-
-
-

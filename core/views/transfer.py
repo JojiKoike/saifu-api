@@ -65,6 +65,9 @@ class TransferBetweenSaifuAndDebtViewSet(viewbase.IsOwnerOnlyViewSetBase):
     def get_queryset(self):
         return TTransferBetweenSaifuAndDebt.objects.filter(owner=self.request.user)
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = TransferBetweenSaifuAndDebtSerializer(data=request.data)
