@@ -6,7 +6,7 @@ class MCreditCategoryMain(MasterBase):
     """
     Credit Category Main Master
     """
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=10, unique=True)
 
 
 class MCreditCategorySub(MasterBase):

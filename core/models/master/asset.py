@@ -6,7 +6,7 @@ class MAssetCategoryMain(MasterBase):
     """
     Asset Category Main Master
     """
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=10, unique=True)
 
 
 class MAssetCategorySub(MasterBase):

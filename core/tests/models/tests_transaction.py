@@ -4,15 +4,20 @@ from core.models.master.expense import *
 from core.models.master.credit import *
 from core.models.master.saifu import *
 from core.models.master.asset import *
+from core.models.master.debt import *
 from core.models.transaction.income import *
 from core.models.transaction.expense import *
 from core.models.transaction.transfer import *
 from core.models.transaction.credit import *
 from core.models.transaction.asset import *
+from core.models.transaction.debt import *
 from core.models.user.saifu import *
 from core.models.user.asset import *
+from core.models.user.debt import *
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+
+from datetime import datetime
 
 
 class TIncomeTests(TestCase):
@@ -322,3 +327,61 @@ class TTAssetEvaluateTests(TestCase):
         self.u_asset.save()
         self.assertEqual(t_asset_evaluate.evaluated_amount, evaluated_amount)
         self.assertEqual(self.u_asset.current_evaluated_amount, evaluated_amount)
+
+
+class TTransferBetweenSaifuAndDebtTests(TestCase):
+    """
+    Transfer Between Saifu And Debt Tests
+    """
+
+    def setUp(self):
+        self.owner = User.objects.create_user("TestUser", 'test@test.com', 'password')
+        self.m_saifu_category_main = MSaifuCategoryMain.objects.create(name="銀行口座")
+        self.m_saifu_category_sub = MSaifuCategorySub.objects.create(name="普通口座",
+                                                                     m_saifu_category_main=self.m_saifu_category_main)
+        self.u_saifu = USaifu.objects.create(name="三菱UFJ銀行",
+                                             current_balance=1000000,
+                                             m_saifu_category_sub=self.m_saifu_category_sub,
+                                             owner=self.owner)
+        self.m_debt_category_main = MDebtCategoryMain.objects.create(name='ローン')
+        self.m_debt_category_sub = MDebtCategorySub.objects.create(name='奨学金',
+                                                                   m_debt_category_main=self.m_debt_category_main)
+        self.u_debt = UDebt.objects.create(name="日本育英会第２種修士課程分",
+                                           current_principal_amount=100000,
+                                           current_gained_amount=100010,
+                                           m_debt_category_sub=self.m_debt_category_sub,
+                                           owner=self.owner)
+
+    def test_transfer_between_saifu_and_debt_correctly(self):
+        amount = 10000
+        t_transfer_between_saifu_and_debt = TTransferBetweenSaifuAndDebt.objects.create(
+            transfer_date=datetime.date(datetime.now()),
+            amount=amount, note='Test',
+            u_saifu=self.u_saifu,
+            u_debt=self.u_debt, owner=self.owner)
+        self.assertEqual(
+            t_transfer_between_saifu_and_debt.amount, amount)
+
+
+class TDebtGainTests(TestCase):
+    """
+    Debt Gain Tests
+    """
+    def setUp(self):
+        self.owner = User.objects.create_user("TestUser", 'test@test.com', 'password')
+        self.m_debt_category_main = MDebtCategoryMain.objects.create(name='ローン')
+        self.m_debt_category_sub = MDebtCategorySub.objects.create(name='奨学金',
+                                                                   m_debt_category_main=self.m_debt_category_main)
+        self.u_debt = UDebt.objects.create(name="日本育英会第２種修士課程分",
+                                           current_principal_amount=100000,
+                                           current_gained_amount=100010,
+                                           m_debt_category_sub=self.m_debt_category_sub,
+                                           owner=self.owner)
+
+    def test_debt_gain_correctly(self):
+        gained_amount=100020
+        t_debt_gain = TDebtGain.objects.create(
+            gained_date=datetime.date(datetime.now()),
+            gained_amount=gained_amount,
+            note='Test',u_debt=self.u_debt,owner=self.owner)
+        self.assertEqual(t_debt_gain.gained_amount, gained_amount)
