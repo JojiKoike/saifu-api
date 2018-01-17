@@ -1,11 +1,11 @@
 from django.test import TestCase
+from django.db.utils import IntegrityError
 from core.models.master.income import *
 from core.models.master.expense import *
 from core.models.master.credit import *
 from core.models.master.saifu import *
-from core.models.user.saifu import *
 from core.models.master.asset import *
-from django.contrib.auth.models import User
+from core.models.master.debt import *
 
 
 class MIncomeCategoryMainTests(TestCase):
@@ -140,3 +140,36 @@ class MAssetCategorySubTests(TestCase):
                                                                 m_asset_category_main=self.m_asset_category_main)
         self.assertEqual(m_asset_category_sub.name, "個人型確定拠出年金")
         self.assertEqual(m_asset_category_sub.m_asset_category_main.name, "個人年金")
+
+
+class MDebtCategoryMainTests(TestCase):
+    """
+    Debt Category Main Master Tests
+    """
+    def setUp(self):
+        self.name = "ローン"
+        self.m_debt_category_main = MDebtCategoryMain.objects.create(name=self.name)
+
+    def test_MDebtCategoryMain_Created_Correctly(self):
+        self.assertEqual(self.m_debt_category_main.name, self.name)
+
+    def test_MDebtCategoryMain_Duplicate_Error(self):
+        with self.assertRaises(expected_exception=IntegrityError):
+            MDebtCategoryMain.objects.create(name=self.name)
+
+
+class MDebtCategorySubTests(TestCase):
+    """
+    Debt Category Sub Master Tests
+    """
+    def setUp(self):
+        self.category_main_name = "ローン"
+        self.m_debt_category_main = MDebtCategoryMain.objects.create(name=self.category_main_name)
+
+    def test_MDebtCategorySub_Created_Correctly(self):
+        name = "奨学金"
+        m_debt_category_sub = MDebtCategorySub.objects.create(
+            name=name,
+            m_debt_category_main=self.m_debt_category_main)
+        self.assertEqual(m_debt_category_sub.name, name)
+        self.assertEqual(m_debt_category_sub.m_debt_category_main.name, self.category_main_name)
